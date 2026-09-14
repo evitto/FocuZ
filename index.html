@@ -165,6 +165,58 @@
       letter-spacing: -0.025em;
     }
 
+    .greeting-row {
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .greeting-text {
+      flex: 0 0 auto;
+      min-width: 0;
+    }
+
+    .search-wrap {
+      flex-grow: 0;
+      flex-shrink: 1;
+      flex-basis: 0%;
+      min-width: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition:
+        flex-grow var(--transition),
+        opacity var(--transition);
+    }
+
+    .greeting-row:hover .search-wrap,
+    .search-wrap.active {
+      flex-grow: 1;
+      opacity: 1;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 9px 14px;
+      border: 1px solid var(--gray-2);
+      border-radius: var(--radius);
+      background: var(--white);
+      color: var(--black);
+      font-family: inherit;
+      font-size: 13px;
+      transition: border-color var(--transition);
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--gray-3);
+    }
+
+    .search-input::placeholder {
+      color: var(--gray-3);
+    }
+
     .apps {
       margin-top: 28px;
     }
@@ -195,12 +247,120 @@
       background: var(--gray-1);
     }
 
-    .app-row.dragging {
+    .app-row.dragging,
+    .app-tile.dragging {
       opacity: 0.45;
     }
 
     .app-row.drag-over {
       border-top: 2px solid var(--black);
+    }
+
+    .app-tile.drag-over {
+      outline: 2px solid var(--black);
+      outline-offset: 2px;
+    }
+
+    /* Grid mode */
+    .app-list.grid-mode {
+      display: grid;
+      grid-template-columns: repeat(var(--grid-columns, 4), var(--grid-icon-size, 96px));
+      gap: 14px;
+      border-top: none;
+      justify-content: center;
+    }
+
+    .app-list.grid-mode .empty-state {
+      grid-column: 1 / -1;
+    }
+
+    .app-tile {
+      position: relative;
+      width: var(--grid-icon-size, 96px);
+      height: var(--grid-icon-size, 96px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--gray-2);
+      border-radius: var(--radius);
+      background: transparent;
+      color: var(--black);
+      cursor: pointer;
+      user-select: none;
+      overflow: hidden;
+      transition:
+        background var(--transition),
+        color var(--transition),
+        opacity var(--transition);
+    }
+
+    .app-tile:hover {
+      background: var(--black);
+      color: var(--white);
+    }
+
+    .app-tile-initials {
+      font-size: calc(var(--grid-icon-size, 96px) * 0.3);
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      pointer-events: none;
+    }
+
+    .app-tile-actions {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      display: flex;
+      gap: 2px;
+      width: 0;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateX(8px);
+      transition:
+        width var(--transition),
+        opacity var(--transition),
+        transform var(--transition);
+    }
+
+    .app-tile:hover .app-tile-actions,
+    .app-tile:focus-within .app-tile-actions {
+      width: 52px;
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .app-tile-actions .icon-button {
+      width: 24px;
+      height: 24px;
+      border-radius: 5px;
+      background: var(--white);
+      border-color: var(--gray-2);
+      color: var(--black);
+      font-size: 12px;
+    }
+
+    .app-tile.folder-app-stale {
+      opacity: 0.6;
+    }
+
+    .tile-tooltip {
+      position: fixed;
+      z-index: 2000;
+      max-width: 220px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: var(--black);
+      color: var(--white);
+      font-size: 12px;
+      line-height: 1.4;
+      pointer-events: none;
+      opacity: 0;
+      transform: translate(-50%, -100%);
+      transition: opacity 120ms ease;
+    }
+
+    .tile-tooltip.visible {
+      opacity: 1;
     }
 
     .app-info {
@@ -303,10 +463,29 @@
         background-color var(--transition);
     }
 
+    .add-app-button.grid-mode {
+      width: var(--grid-icon-size, 96px);
+      height: var(--grid-icon-size, 96px);
+      min-height: 0;
+      margin-top: 0;
+      border-style: solid;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: calc(var(--grid-icon-size, 96px) * 0.32);
+      line-height: 1;
+    }
+
     .add-app-button:hover {
       border-color: var(--gray-3);
       background: var(--gray-1);
       color: var(--black);
+    }
+
+    .add-app-button.grid-mode:hover {
+      background: var(--black);
+      border-color: var(--black);
+      color: var(--white);
     }
 
     .modal-backdrop {
@@ -645,10 +824,84 @@
       padding: 4px 0;
     }
 
-    .theme-label {
+    .theme-label,
+    .toggle-label {
       color: var(--black);
       font-size: 13px;
       font-weight: 500;
+    }
+
+    .toggle-switch {
+      position: relative;
+      flex: 0 0 auto;
+      width: 44px;
+      height: 26px;
+      border: 1px solid var(--gray-2);
+      border-radius: 999px;
+      background: var(--gray-2);
+      padding: 0;
+      transition:
+        background-color var(--transition),
+        border-color var(--transition);
+    }
+
+    .toggle-switch::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--white);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+      transition: transform var(--transition);
+    }
+
+    .toggle-switch.active {
+      background: var(--black);
+      border-color: var(--black);
+    }
+
+    .toggle-switch.active::after {
+      transform: translateX(18px);
+    }
+
+    .grid-settings {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--gray-2);
+    }
+
+    .grid-setting-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .grid-setting-label {
+      flex: 0 0 auto;
+      width: 68px;
+      color: var(--black);
+      font-size: 12.5px;
+      font-weight: 500;
+    }
+
+    .grid-setting-row input[type="range"] {
+      flex: 1;
+      accent-color: var(--black);
+    }
+
+    .grid-setting-value {
+      flex: 0 0 auto;
+      width: 34px;
+      text-align: right;
+      color: var(--gray-4);
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
     }
 
     .theme-options {
@@ -902,6 +1155,26 @@
         opacity: 1;
         transform: none;
       }
+
+      /* Hover doesn't exist on touch, and there's no room for a side-by-side
+         layout — stack the search bar below the greeting, always visible. */
+      .greeting-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .search-wrap {
+        flex-basis: auto;
+        width: 100%;
+        opacity: 1;
+        margin-top: 10px;
+      }
+
+      .app-tile-actions {
+        width: 52px;
+        opacity: 1;
+        transform: none;
+      }
     }
 
     @media (max-width: 400px) {
@@ -949,8 +1222,22 @@
 
   <main class="dashboard">
     <div class="container">
-      <div class="eyebrow">WELCOME BACK</div>
-      <h1 class="greeting" id="greeting">Hello Juan!</h1>
+      <div class="greeting-row" id="greetingRow">
+        <div class="greeting-text">
+          <div class="eyebrow">WELCOME BACK</div>
+          <h1 class="greeting" id="greeting">Hello Juan!</h1>
+        </div>
+
+        <div class="search-wrap" id="searchWrap">
+          <input
+            type="text"
+            class="search-input"
+            id="searchInput"
+            placeholder="Search apps…"
+            aria-label="Search apps"
+          />
+        </div>
+      </div>
 
       <section
         class="apps app-list"
@@ -1138,6 +1425,57 @@
               >
                 Pink
               </button>
+            </div>
+          </div>
+
+          <div class="toggle-row">
+            <span class="toggle-label">Grid mode</span>
+
+            <button
+              type="button"
+              class="toggle-switch"
+              id="gridModeToggle"
+              role="switch"
+              aria-checked="false"
+              aria-label="Toggle grid mode"
+            ></button>
+          </div>
+
+          <div class="grid-settings" id="gridSettings" hidden>
+            <div class="grid-setting-row">
+              <label class="grid-setting-label" for="iconSizeSlider">
+                Icon size
+              </label>
+
+              <input
+                type="range"
+                id="iconSizeSlider"
+                min="64"
+                max="160"
+                step="4"
+              />
+
+              <span class="grid-setting-value" id="iconSizeValue">
+                96px
+              </span>
+            </div>
+
+            <div class="grid-setting-row">
+              <label class="grid-setting-label" for="columnsSlider">
+                Columns
+              </label>
+
+              <input
+                type="range"
+                id="columnsSlider"
+                min="2"
+                max="8"
+                step="1"
+              />
+
+              <span class="grid-setting-value" id="columnsValue">
+                4
+              </span>
             </div>
           </div>
         </div>
@@ -1526,6 +1864,43 @@
     let currentTheme = loadTheme();
     applyTheme(currentTheme);
 
+    /* Grid mode + sizing — a device-level display preference, like theme,
+       not tied to any specific profile. */
+    const LAYOUT_KEY = "minimalWebAppDashboardLayout";
+    const DEFAULT_LAYOUT = { gridMode: false, iconSize: 96, columns: 4 };
+
+    function loadLayoutPrefs() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(LAYOUT_KEY));
+
+        if (saved && typeof saved === "object") {
+          return {
+            gridMode: Boolean(saved.gridMode),
+            iconSize: Number.isFinite(saved.iconSize)
+              ? saved.iconSize
+              : DEFAULT_LAYOUT.iconSize,
+            columns: Number.isFinite(saved.columns)
+              ? saved.columns
+              : DEFAULT_LAYOUT.columns
+          };
+        }
+      } catch (error) {
+        // Fall through to defaults.
+      }
+
+      return { ...DEFAULT_LAYOUT };
+    }
+
+    function saveLayoutPrefs() {
+      try {
+        localStorage.setItem(LAYOUT_KEY, JSON.stringify(layoutPrefs));
+      } catch (error) {
+        console.warn("Unable to save layout preferences.", error);
+      }
+    }
+
+    let layoutPrefs = loadLayoutPrefs();
+
     /* Persistent storage for folder-picker file contents (avoids blob URLs
        expiring on reload — content is saved here and a fresh blob URL is
        rebuilt from it every time the page loads). Standard IndexedDB,
@@ -1663,10 +2038,23 @@
     let pendingFolderAction = null;
     const freshFolderIds = new Set();
 
+    /* Live text typed into the hover-reveal search bar; filters the
+       rendered app list by name/description. */
+    let searchQuery = "";
+
     const profileButton = $("profileButton");
+    const greetingRow = $("greetingRow");
     const greeting = $("greeting");
+    const searchWrap = $("searchWrap");
+    const searchInput = $("searchInput");
     const appList = $("appList");
     const addAppButton = $("addAppButton");
+    const gridModeToggle = $("gridModeToggle");
+    const gridSettings = $("gridSettings");
+    const iconSizeSlider = $("iconSizeSlider");
+    const iconSizeValue = $("iconSizeValue");
+    const columnsSlider = $("columnsSlider");
+    const columnsValue = $("columnsValue");
 
     const appModal = $("appModal");
     const appForm = $("appForm");
@@ -1736,6 +2124,79 @@
     }
 
     updateThemeOptionsUI();
+
+    /* Grid mode: apply the current preferences to the DOM (CSS vars,
+       toggle state, and slider values). */
+    function applyLayoutPrefs() {
+      appList.classList.toggle("grid-mode", layoutPrefs.gridMode);
+      addAppButton.classList.toggle("grid-mode", layoutPrefs.gridMode);
+      addAppButton.textContent = layoutPrefs.gridMode ? "+" : "+ Add App";
+      addAppButton.setAttribute("aria-label", "Add app");
+
+      document.documentElement.style.setProperty(
+        "--grid-icon-size",
+        `${layoutPrefs.iconSize}px`
+      );
+      document.documentElement.style.setProperty(
+        "--grid-columns",
+        layoutPrefs.columns
+      );
+
+      gridModeToggle.classList.toggle("active", layoutPrefs.gridMode);
+      gridModeToggle.setAttribute(
+        "aria-checked",
+        layoutPrefs.gridMode ? "true" : "false"
+      );
+      gridSettings.hidden = !layoutPrefs.gridMode;
+
+      iconSizeSlider.value = layoutPrefs.iconSize;
+      iconSizeValue.textContent = `${layoutPrefs.iconSize}px`;
+      columnsSlider.value = layoutPrefs.columns;
+      columnsValue.textContent = String(layoutPrefs.columns);
+    }
+
+    applyLayoutPrefs();
+
+    /* Floating tooltip that follows the cursor over a grid tile, showing
+       that app's description. */
+    const tileTooltip = document.createElement("div");
+    tileTooltip.className = "tile-tooltip";
+    tileTooltip.setAttribute("role", "tooltip");
+    document.body.appendChild(tileTooltip);
+
+    function positionTileTooltip(event) {
+      tileTooltip.style.left = `${event.clientX}px`;
+      tileTooltip.style.top = `${event.clientY - 12}px`;
+    }
+
+    function showTileTooltip(text, event) {
+      if (!text) {
+        return;
+      }
+
+      tileTooltip.textContent = text;
+      tileTooltip.classList.add("visible");
+      positionTileTooltip(event);
+    }
+
+    function hideTileTooltip() {
+      tileTooltip.classList.remove("visible");
+    }
+
+    /* "Task Logger" → "TL", "Notes" → "NO" */
+    function getAppInitials(name) {
+      const words = name.trim().split(/\s+/).filter(Boolean);
+
+      if (words.length === 0) {
+        return "?";
+      }
+
+      if (words.length === 1) {
+        return words[0].slice(0, 2).toUpperCase();
+      }
+
+      return (words[0][0] + words[1][0]).toUpperCase();
+    }
 
     function cloneDefaultState() {
       return JSON.parse(JSON.stringify(defaultState));
@@ -1882,145 +2343,254 @@
 
     function renderApps() {
       const profile = getActiveProfile();
+      const query = searchQuery.trim().toLowerCase();
+
+      const apps = query
+        ? profile.apps.filter((app) => {
+            const haystack =
+              `${app.name} ${app.description || ""}`.toLowerCase();
+
+            return haystack.includes(query);
+          })
+        : profile.apps;
 
       appList.innerHTML = "";
+      appList.classList.toggle("grid-mode", layoutPrefs.gridMode);
 
       if (profile.apps.length === 0) {
         const empty = document.createElement("div");
         empty.className = "empty-state";
         empty.textContent = "No apps added yet.";
         appList.appendChild(empty);
-        return;
+      } else if (apps.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.textContent = "No matching apps.";
+        appList.appendChild(empty);
+      } else {
+        apps.forEach((app) => {
+          const isStaleFolderApp =
+            Boolean(app.sourceFolderId) &&
+            !freshFolderIds.has(app.sourceFolderId);
+
+          function openApp() {
+            if (isStaleFolderApp) {
+              showToast(
+                "Link expired — refresh its folder in Profile settings."
+              );
+              return;
+            }
+
+            window.location.href = resolveAppUrl(app.path);
+          }
+
+          const element = layoutPrefs.gridMode
+            ? createAppTile(app, isStaleFolderApp, openApp)
+            : createAppRow(app, isStaleFolderApp, openApp);
+
+          attachDragHandlers(element, app.id);
+
+          appList.appendChild(element);
+        });
       }
 
-      profile.apps.forEach((app) => {
-        const row = document.createElement("div");
-        row.className = "app-row";
-        row.draggable = true;
-        row.dataset.appId = app.id;
-        row.tabIndex = 0;
+      if (layoutPrefs.gridMode) {
+        /* In grid mode the Add App control is a tile that belongs at the
+           end of the grid, not a separate row below it. */
+        appList.appendChild(addAppButton);
+      } else {
+        appList.insertAdjacentElement("afterend", addAppButton);
+      }
+    }
 
-        const isStaleFolderApp =
-          Boolean(app.sourceFolderId) &&
-          !freshFolderIds.has(app.sourceFolderId);
+    function createAppRow(app, isStaleFolderApp, openApp) {
+      const row = document.createElement("div");
+      row.className = "app-row";
+      row.tabIndex = 0;
 
-        if (isStaleFolderApp) {
-          row.classList.add("folder-app-stale");
+      if (isStaleFolderApp) {
+        row.classList.add("folder-app-stale");
+      }
+
+      const info = document.createElement("div");
+      info.className = "app-info";
+
+      const name = document.createElement("div");
+      name.className = "app-name";
+      name.textContent = app.name;
+
+      const description = document.createElement("div");
+      description.className = "app-description";
+      description.textContent = app.description || "";
+
+      info.appendChild(name);
+      info.appendChild(description);
+
+      const actions = document.createElement("div");
+      actions.className = "app-actions";
+
+      const editButton = document.createElement("button");
+      editButton.type = "button";
+      editButton.className = "icon-button";
+      editButton.textContent = "✎";
+      editButton.setAttribute("aria-label", `Edit ${app.name}`);
+
+      const deleteButton = document.createElement("button");
+      deleteButton.type = "button";
+      deleteButton.className = "icon-button delete";
+      deleteButton.textContent = "×";
+      deleteButton.setAttribute("aria-label", `Delete ${app.name}`);
+
+      editButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        openEditAppModal(app.id);
+      });
+
+      deleteButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        deleteApp(app.id);
+      });
+
+      actions.appendChild(editButton);
+      actions.appendChild(deleteButton);
+
+      row.appendChild(info);
+      row.appendChild(actions);
+
+      row.addEventListener("click", openApp);
+
+      row.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          openApp();
+        }
+      });
+
+      return row;
+    }
+
+    function createAppTile(app, isStaleFolderApp, openApp) {
+      const tile = document.createElement("div");
+      tile.className = "app-tile";
+      tile.tabIndex = 0;
+      tile.setAttribute("aria-label", app.name);
+
+      if (isStaleFolderApp) {
+        tile.classList.add("folder-app-stale");
+      }
+
+      const initials = document.createElement("span");
+      initials.className = "app-tile-initials";
+      initials.textContent = getAppInitials(app.name);
+
+      const actions = document.createElement("div");
+      actions.className = "app-tile-actions";
+
+      const editButton = document.createElement("button");
+      editButton.type = "button";
+      editButton.className = "icon-button";
+      editButton.textContent = "✎";
+      editButton.setAttribute("aria-label", `Edit ${app.name}`);
+
+      const deleteButton = document.createElement("button");
+      deleteButton.type = "button";
+      deleteButton.className = "icon-button delete";
+      deleteButton.textContent = "×";
+      deleteButton.setAttribute("aria-label", `Delete ${app.name}`);
+
+      editButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        openEditAppModal(app.id);
+      });
+
+      deleteButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        deleteApp(app.id);
+      });
+
+      actions.appendChild(editButton);
+      actions.appendChild(deleteButton);
+
+      tile.appendChild(initials);
+      tile.appendChild(actions);
+
+      tile.addEventListener("click", openApp);
+
+      tile.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          openApp();
+        }
+      });
+
+      const tooltipText =
+        app.description && app.description.trim()
+          ? `${app.name} — ${app.description}`
+          : app.name;
+
+      tile.addEventListener("mouseenter", (event) => {
+        showTileTooltip(tooltipText, event);
+      });
+
+      tile.addEventListener("mousemove", (event) => {
+        positionTileTooltip(event);
+      });
+
+      tile.addEventListener("mouseleave", () => {
+        hideTileTooltip();
+      });
+
+      return tile;
+    }
+
+    function attachDragHandlers(element, appId) {
+      element.draggable = true;
+      element.dataset.appId = appId;
+
+      element.addEventListener("dragstart", (event) => {
+        draggedAppId = appId;
+        element.classList.add("dragging");
+
+        if (event.dataTransfer) {
+          event.dataTransfer.effectAllowed = "move";
+          event.dataTransfer.setData("text/plain", appId);
+        }
+      });
+
+      element.addEventListener("dragend", () => {
+        draggedAppId = null;
+        element.classList.remove("dragging");
+
+        appList
+          .querySelectorAll(".app-row, .app-tile")
+          .forEach((item) => item.classList.remove("drag-over"));
+      });
+
+      element.addEventListener("dragover", (event) => {
+        event.preventDefault();
+
+        if (draggedAppId && draggedAppId !== appId) {
+          event.dataTransfer.dropEffect = "move";
+          element.classList.add("drag-over");
+        }
+      });
+
+      element.addEventListener("dragleave", () => {
+        element.classList.remove("drag-over");
+      });
+
+      element.addEventListener("drop", (event) => {
+        event.preventDefault();
+        element.classList.remove("drag-over");
+
+        const sourceId =
+          draggedAppId || event.dataTransfer.getData("text/plain");
+
+        if (!sourceId || sourceId === appId) {
+          return;
         }
 
-        const info = document.createElement("div");
-        info.className = "app-info";
-
-        const name = document.createElement("div");
-        name.className = "app-name";
-        name.textContent = app.name;
-
-        const description = document.createElement("div");
-        description.className = "app-description";
-        description.textContent = app.description || "";
-
-        info.appendChild(name);
-        info.appendChild(description);
-
-        const actions = document.createElement("div");
-        actions.className = "app-actions";
-
-        const editButton = document.createElement("button");
-        editButton.type = "button";
-        editButton.className = "icon-button";
-        editButton.textContent = "✎";
-        editButton.setAttribute("aria-label", `Edit ${app.name}`);
-
-        const deleteButton = document.createElement("button");
-        deleteButton.type = "button";
-        deleteButton.className = "icon-button delete";
-        deleteButton.textContent = "×";
-        deleteButton.setAttribute("aria-label", `Delete ${app.name}`);
-
-        editButton.addEventListener("click", (event) => {
-          event.stopPropagation();
-          openEditAppModal(app.id);
-        });
-
-        deleteButton.addEventListener("click", (event) => {
-          event.stopPropagation();
-          deleteApp(app.id);
-        });
-
-        actions.appendChild(editButton);
-        actions.appendChild(deleteButton);
-
-        row.appendChild(info);
-        row.appendChild(actions);
-
-        function openApp() {
-          if (isStaleFolderApp) {
-            showToast(
-              "Link expired — refresh its folder in Profile settings."
-            );
-            return;
-          }
-
-          window.location.href = resolveAppUrl(app.path);
-        }
-
-        row.addEventListener("click", openApp);
-
-        row.addEventListener("keydown", (event) => {
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            openApp();
-          }
-        });
-
-        row.addEventListener("dragstart", (event) => {
-          draggedAppId = app.id;
-          row.classList.add("dragging");
-
-          if (event.dataTransfer) {
-            event.dataTransfer.effectAllowed = "move";
-            event.dataTransfer.setData("text/plain", app.id);
-          }
-        });
-
-        row.addEventListener("dragend", () => {
-          draggedAppId = null;
-          row.classList.remove("dragging");
-
-          document
-            .querySelectorAll(".app-row")
-            .forEach((item) => item.classList.remove("drag-over"));
-        });
-
-        row.addEventListener("dragover", (event) => {
-          event.preventDefault();
-
-          if (draggedAppId && draggedAppId !== app.id) {
-            event.dataTransfer.dropEffect = "move";
-            row.classList.add("drag-over");
-          }
-        });
-
-        row.addEventListener("dragleave", () => {
-          row.classList.remove("drag-over");
-        });
-
-        row.addEventListener("drop", (event) => {
-          event.preventDefault();
-          row.classList.remove("drag-over");
-
-          const sourceId =
-            draggedAppId ||
-            event.dataTransfer.getData("text/plain");
-
-          if (!sourceId || sourceId === app.id) {
-            return;
-          }
-
-          reorderApps(sourceId, app.id);
-        });
-
-        appList.appendChild(row);
+        reorderApps(sourceId, appId);
       });
     }
 
@@ -2792,6 +3362,55 @@
         setTheme(button.getAttribute("data-theme-option"));
       });
     });
+
+    gridModeToggle.addEventListener("click", () => {
+      layoutPrefs.gridMode = !layoutPrefs.gridMode;
+
+      saveLayoutPrefs();
+      applyLayoutPrefs();
+      renderApps();
+    });
+
+    iconSizeSlider.addEventListener("input", () => {
+      layoutPrefs.iconSize = Number(iconSizeSlider.value);
+      iconSizeValue.textContent = `${layoutPrefs.iconSize}px`;
+
+      document.documentElement.style.setProperty(
+        "--grid-icon-size",
+        `${layoutPrefs.iconSize}px`
+      );
+
+      saveLayoutPrefs();
+    });
+
+    columnsSlider.addEventListener("input", () => {
+      layoutPrefs.columns = Number(columnsSlider.value);
+      columnsValue.textContent = String(layoutPrefs.columns);
+
+      document.documentElement.style.setProperty(
+        "--grid-columns",
+        layoutPrefs.columns
+      );
+
+      saveLayoutPrefs();
+    });
+
+    function updateSearchVisibility() {
+      const shouldShow =
+        document.activeElement === searchInput ||
+        searchInput.value.trim().length > 0;
+
+      searchWrap.classList.toggle("active", shouldShow);
+    }
+
+    searchInput.addEventListener("input", () => {
+      searchQuery = searchInput.value;
+      updateSearchVisibility();
+      renderApps();
+    });
+
+    searchInput.addEventListener("focus", updateSearchVisibility);
+    searchInput.addEventListener("blur", updateSearchVisibility);
 
     function activateProfileTab(tabId) {
       document.querySelectorAll(".tab-button").forEach((btn) =>
