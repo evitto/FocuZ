@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spin the Wheel</title>
+  <style>
+    :root {
+      --color-bg: #ffffff;
+      --color-surface: #ffffff;
+      --color-surface-muted: #f7f7f7;
+
+      --color-text: #111111;
+      --color-text-secondary: #666666;
+      --color-text-muted: #999999;
+
+      --color-border: #e5e5e5;
+      --color-border-strong: #999999;
+
+      --color-danger: #b42318;
+      --color-danger-bg: #fdf3f2;
+
+      --radius-sm: 6px;
+      --radius-md: 8px;
+
+      --transition: 170ms ease;
+    }
+
+    [data-theme="dark"] {
+      --color-bg: #111111;
+      --color-surface: #1a1a1a;
+      --color-surface-muted: #222222;
+
+      --color-text: #f7f7f7;
+      --color-text-secondary: #aaaaaa;
+      --color-text-muted: #777777;
+
+      --color-border: #333333;
+      --color-border-strong: #777777;
+
+      --color-danger: #f87171;
+      --color-danger-bg: #3b1111;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px;
+      transition: background-color var(--transition), color var(--transition);
+    }
+
+    .container {
+      width: min(100%, 960px);
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--color-border);
+      padding-bottom: 16px;
+    }
+
+    h1 {
+      font-size: 26px;
+      line-height: 1.2;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+    }
+
+    .btn {
+      min-height: 38px;
+      padding: 0 14px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      background: var(--color-surface);
+      color: var(--color-text);
+      font-weight: 500;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: var(--transition);
+    }
+
+    .btn:hover {
+      border-color: var(--color-border-strong);
+      background: var(--color-surface-muted);
+    }
+
+    .btn:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, button:focus-visible {
+      outline: 2px solid var(--color-text);
+      outline-offset: 2px;
+    }
+
+    .btn-primary {
+      border: 1px solid var(--color-text);
+      background: var(--color-text);
+      color: var(--color-bg);
+    }
+
+    .btn-primary:hover {
+      opacity: 0.86;
+      background: var(--color-text);
+    }
+
+    .btn-danger {
+      color: var(--color-danger);
+      border-color: var(--color-border);
+    }
+
+    .btn-danger:hover {
+      border-color: var(--color-danger);
+      background: var(--color-danger-bg);
+    }
+
+    .icon-btn {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .icon-btn:hover {
+      background: var(--color-surface-muted);
+      border-color: var(--color-border);
+      color: var(--color-text);
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 768px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      line-height: 1.3;
+      font-weight: 600;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    input[type="text"], textarea, select {
+      height: 40px;
+      padding: 0 12px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      background: var(--color-surface);
+      color: var(--color-text);
+      font-size: 14px;
+      width: 100%;
+      transition: var(--transition);
+    }
+
+    textarea {
+      height: auto;
+      min-height: 84px;
+      padding: 10px 12px;
+      resize: vertical;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--color-text);
+      outline: none;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-text);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .help-text {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      margin-top: 4px;
+    }
+
+    .items-list {
+      max-height: 220px;
+      overflow-y: auto;
+      border-top: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border);
+      margin: 4px 0;
+    }
+
+    .item-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      min-height: 44px;
+      padding: 6px 4px;
+      border-bottom: 1px solid var(--color-border);
+      font-size: 14px;
+      transition: var(--transition);
+    }
+
+    .item-row:last-child {
+      border-bottom: none;
+    }
+
+    .item-row:hover {
+      background: var(--color-surface-muted);
+    }
+
+    .item-actions {
+      display: flex;
+      gap: 4px;
+    }
+
+    .list-controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .wheel-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      gap: 20px;
+    }
+
+    .wheel-wrapper {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      margin: 10px auto;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+    }
+
+    .wheel-pointer {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 12px solid transparent;
+      border-right: 12px solid transparent;
+      border-top: 20px solid var(--color-text);
+      z-index: 10;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+    }
+
+    .spin-btn-container {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    .spin-btn {
+      width: 100%;
+      max-width: 240px;
+      height: 48px;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    .history-section {
+      margin-top: 8px;
+    }
+
+    .history-list {
+      max-height: 160px;
+      overflow-y: auto;
+      border-top: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .history-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      min-height: 40px;
+      padding: 4px 8px;
+      border-bottom: 1px solid var(--color-border);
+      font-size: 13px;
+    }
+
+    .history-row:last-child {
+      border-bottom: none;
+    }
+
+    .history-index {
+      color: var(--color-text-muted);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      margin-right: 12px;
+    }
+
+    .history-item-name {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .empty-state {
+      padding: 28px 12px;
+      color: var(--color-text-muted);
+      text-align: center;
+      font-size: 13px;
+    }
+
+    /* Modal Overlay */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(17, 17, 17, 0.38);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition);
+    }
+
+    .modal-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal {
+      width: min(100% - 32px, 480px);
+      max-height: calc(100vh - 40px);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      display: flex;
+      flex-direction: column;
+      transform: translateY(8px);
+      transition: transform var(--transition);
+      overflow: hidden;
+    }
+
+    .modal-backdrop.active .modal {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .modal-footer {
+      padding: 12px 20px;
+      border-top: 1px solid var(--color-border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .winner-display {
+      text-align: center;
+      padding: 12px 0;
+    }
+
+    .winner-eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      margin-bottom: 8px;
+    }
+
+    .winner-name {
+      font-size: 24px;
+      font-weight: 600;
+      word-break: break-word;
+      margin-bottom: 16px;
+    }
+
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .setting-row:last-child {
+      border-bottom: none;
+    }
+
+    .setting-label {
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    .setting-control {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Switch toggle */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 36px;
+      height: 20px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: var(--color-border);
+      transition: var(--transition);
+      border-radius: 20px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: var(--transition);
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--color-text);
+    }
+
+    input:focus-visible + .slider {
+      outline: 2px solid var(--color-text);
+      outline-offset: 2px;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(16px);
+    }
+
+    /* Toast notification */
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 200;
+      pointer-events: none;
+    }
+
+    .toast {
+      padding: 10px 14px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      color: var(--color-text);
+      font-size: 13px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      pointer-events: auto;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 170ms ease, transform 170ms ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        width: 100%;
+      }
+      body {
+        padding: 12px 8px;
+      }
+      .wheel-wrapper {
+        width: 260px;
+        height: 260px;
+      }
+    }
+  </style>
+</head>
+<body data-theme="light">
+  <div class="container">
+    <header>
+      <h1>Spin the Wheel</h1>
+      <button class="icon-btn" id="open-settings" aria-label="Settings" title="Settings">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </header>
+
+    <div class="main-grid">
+      <!-- Items & Management Card -->
+      <div class="card">
+        <div>
+          <h2 class="section-title">Items</h2>
+          <div class="help-text">Add individual items or bulk import.</div>
+        </div>
+
+        <div class="input-group">
+          <input type="text" id="item-input" placeholder="Enter an item..." autocomplete="off">
+          <button class="btn btn-primary" id="add-item-btn">+ Add</button>
+        </div>
+
+        <div>
+          <label for="bulk-input">Bulk Add (one per line)</label>
+          <textarea id="bulk-input" placeholder="Apple&#10;Banana&#10;Orange"></textarea>
+          <div style="margin-top: 8px; display: flex; justify-content: flex-end;">
+            <button class="btn" id="bulk-add-btn">Add Bulk</button>
+          </div>
+        </div>
+
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label style="margin-bottom: 0;">Current Items (<span id="item-count">0</span>)</label>
+            <div class="list-controls">
+              <button class="btn" id="shuffle-btn" style="padding: 2px 8px; font-size: 12px;">Shuffle</button>
+              <button class="btn btn-danger" id="clear-items-btn" style="padding: 2px 8px; font-size: 12px;">Clear all</button>
+            </div>
+          </div>
+          <div class="items-list" id="items-list">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <div id="restore-removed-container" style="display: none;">
+          <button class="btn" id="restore-removed-btn" style="width: 100%; font-size: 12px;">Restore Removed Items (<span id="removed-count">0</span>)</button>
+        </div>
+      </div>
+
+      <!-- Wheel & History Card -->
+      <div class="card wheel-container">
+        <h2 class="section-title" style="align-self: flex-start;">Wheel</h2>
+        
+        <div class="wheel-wrapper">
+          <div class="wheel-pointer"></div>
+          <canvas id="wheel-canvas" width="400" height="400"></canvas>
+        </div>
+
+        <div class="spin-btn-container">
+          <button class="btn btn-primary spin-btn" id="spin-btn">SPIN</button>
+        </div>
+
+        <div class="history-section" style="width: 100%;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label style="margin-bottom: 0;">History</label>
+            <button class="btn btn-danger" id="clear-history-btn" style="padding: 2px 8px; font-size: 12px;">Clear history</button>
+          </div>
+          <div class="history-list" id="history-list">
+            <div class="empty-state">No spins yet</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Winner Modal -->
+  <div class="modal-backdrop" id="winner-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 style="font-size: 16px; font-weight: 600;">Result</h3>
+        <button class="icon-btn" id="close-winner-modal" aria-label="Close modal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="winner-display">
+          <div class="winner-eyebrow">Winner</div>
+          <div class="winner-name" id="winner-name-text">Banana</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" id="copy-winner-btn">Copy Winner</button>
+        <button class="btn btn-primary" id="winner-ok-btn">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-backdrop" id="settings-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 style="font-size: 16px; font-weight: 600;">Settings</h3>
+        <button class="icon-btn" id="close-settings-modal" aria-label="Close settings">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="setting-row">
+          <span class="setting-label">Remove winner after spin</span>
+          <div class="setting-control">
+            <label class="switch">
+              <input type="checkbox" id="setting-auto-remove" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <span class="setting-label">Restore removed winners when clearing history</span>
+          <div class="setting-control">
+            <label class="switch">
+              <input type="checkbox" id="setting-restore-on-clear">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <span class="setting-label">Spin duration</span>
+          <div class="setting-control">
+            <select id="setting-duration" style="width: 100px; height: 32px;">
+              <option value="3000">3 seconds</option>
+              <option value="5000" selected>5 seconds</option>
+              <option value="7000">7 seconds</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <span class="setting-label">Spin sound</span>
+          <div class="setting-control">
+            <label class="switch">
+              <input type="checkbox" id="setting-sound">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <span class="setting-label">Winner celebration</span>
+          <div class="setting-control">
+            <label class="switch">
+              <input type="checkbox" id="setting-confetti" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <span class="setting-label">Dark Mode</span>
+          <div class="setting-control">
+            <label class="switch">
+              <input type="checkbox" id="setting-dark-mode">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="setting-row" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+          <span class="setting-label">Data Management</span>
+          <div style="display: flex; gap: 8px; width: 100%;">
+            <button class="btn" id="export-items-btn" style="flex: 1; font-size: 12px;">Export .txt</button>
+            <button class="btn" id="export-json-btn" style="flex: 1; font-size: 12px;">Export JSON</button>
+            <button class="btn btn-danger" id="reset-app-btn" style="flex: 1; font-size: 12px;">Reset App</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="settings-ok-btn">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script>
+    const STORAGE_KEY = 'spin_the_wheel_app_state_v2';
+
+    let state = {
+      items: ['Apple', 'Banana', 'Orange', 'Mango', 'Grapes'],
+      removedItems: [],
+      history: [],
+      settings: {
+        removeWinner: true,
+        restoreRemovedOnClearHistory: false,
+        sound: false,
+        confetti: true,
+        spinDuration: 5000,
+        darkMode: false
+      },
+      isSpinning: false,
+      currentRotation: 0
+    };
+
+    function loadState() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          state = { ...state, ...parsed };
+          if (parsed.settings) {
+            state.settings = { ...state.settings, ...parsed.settings };
+          }
+        } catch (e) {
+          console.error('Failed to load state', e);
+        }
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playTickSound() {
+      if (!state.settings.sound) return;
+      try {
+        initAudio();
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.03);
+        
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.03);
+      } catch (e) {}
+    }
+
+    function playWinSound() {
+      if (!state.settings.sound) return;
+      try {
+        initAudio();
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        const now = audioCtx.currentTime;
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((freq, index) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + index * 0.08);
+
+          gain.gain.setValueAtTime(0.1, now + index * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + index * 0.08 + 0.3);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now + index * 0.08);
+          osc.stop(now + index * 0.08 + 0.3);
+        });
+      } catch (e) {}
+    }
+
+    let confettiParticles = [];
+    let confettiAnimationId = null;
+
+    function triggerConfetti() {
+      if (!state.settings.confetti) return;
+      
+      for (let i = 0; i < 60; i++) {
+        confettiParticles.push({
+          x: window.innerWidth / 2,
+          y: window.innerHeight / 2,
+          vx: (Math.random() - 0.5) * 12,
+          vy: (Math.random() - 0.7) * 12 - 4,
+          size: Math.random() * 6 + 4,
+          color: ['#111111', '#666666', '#b42318', '#e5e5e5', '#999999'][Math.floor(Math.random() * 5)],
+          alpha: 1,
+          decay: Math.random() * 0.02 + 0.01
+        });
+      }
+
+      if (!confettiAnimationId) {
+        animateConfetti();
+      }
+    }
+
+    const confettiCanvas = document.createElement('canvas');
+    confettiCanvas.style.position = 'fixed';
+    confettiCanvas.style.inset = '0';
+    confettiCanvas.style.pointerEvents = 'none';
+    confettiCanvas.style.zIndex = '150';
+    document.body.appendChild(confettiCanvas);
+    const cCtx = confettiCanvas.getContext('2d');
+
+    function resizeConfettiCanvas() {
+      confettiCanvas.width = window.innerWidth;
+      confettiCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeConfettiCanvas);
+    resizeConfettiCanvas();
+
+    function animateConfetti() {
+      cCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      
+      confettiParticles.forEach((p, index) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.4;
+        p.alpha -= p.decay;
+
+        if (p.alpha <= 0) {
+          confettiParticles.splice(index, 1);
+          return;
+        }
+
+        cCtx.save();
+        cCtx.globalAlpha = p.alpha;
+        cCtx.fillStyle = p.color;
+        cCtx.fillRect(p.x, p.y, p.size, p.size);
+        cCtx.restore();
+      });
+
+      if (confettiParticles.length > 0) {
+        confettiAnimationId = requestAnimationFrame(animateConfetti);
+      } else {
+        confettiAnimationId = null;
+        cCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      }
+    }
+
+    const itemInput = document.getElementById('item-input');
+    const addItemBtn = document.getElementById('add-item-btn');
+    const bulkInput = document.getElementById('bulk-input');
+    const bulkAddBtn = document.getElementById('bulk-add-btn');
+    const itemsList = document.getElementById('items-list');
+    const itemCount = document.getElementById('item-count');
+    const shuffleBtn = document.getElementById('shuffle-btn');
+    const clearItemsBtn = document.getElementById('clear-items-btn');
+    const restoreRemovedContainer = document.getElementById('restore-removed-container');
+    const restoreRemovedBtn = document.getElementById('restore-removed-btn');
+    const removedCountSpan = document.getElementById('removed-count');
+
+    const spinBtn = document.getElementById('spin-btn');
+    const historyList = document.getElementById('history-list');
+    const clearHistoryBtn = document.getElementById('clear-history-btn');
+
+    const wheelCanvas = document.getElementById('wheel-canvas');
+    const ctx = wheelCanvas.getContext('2d');
+
+    const winnerModal = document.getElementById('winner-modal');
+    const closeWinnerModal = document.getElementById('close-winner-modal');
+    const winnerNameText = document.getElementById('winner-name-text');
+    const copyWinnerBtn = document.getElementById('copy-winner-btn');
+    const winnerOkBtn = document.getElementById('winner-ok-btn');
+
+    const openSettingsBtn = document.getElementById('open-settings');
+    const settingsModal = document.getElementById('settings-modal');
+    const closeSettingsModal = document.getElementById('close-settings-modal');
+    const settingsOkBtn = document.getElementById('settings-ok-btn');
+    const settingAutoRemove = document.getElementById('setting-auto-remove');
+    const settingRestoreOnClear = document.getElementById('setting-restore-on-clear');
+    const settingDuration = document.getElementById('setting-duration');
+    const settingSound = document.getElementById('setting-sound');
+    const settingConfetti = document.getElementById('setting-confetti');
+    const settingDarkMode = document.getElementById('setting-dark-mode');
+    const exportItemsBtn = document.getElementById('export-items-btn');
+    const exportJsonBtn = document.getElementById('export-json-btn');
+    const resetAppBtn = document.getElementById('reset-app-btn');
+    const toastContainer = document.getElementById('toast-container');
+
+    const segmentColorsLight = ['#f7f7f7', '#e5e5e5', '#d4d4d4', '#ffffff', '#efefef', '#dedede'];
+    const segmentColorsDark = ['#1a1a1a', '#262626', '#333333', '#222222', '#2a2a2a', '#1f1f1f'];
+
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      toastContainer.appendChild(toast);
+      requestAnimationFrame(() => {
+        toast.classList.add('show');
+      });
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 170);
+      }, 2500);
+    }
+
+    function applyDarkMode(isDark) {
+      document.body.setAttribute('data-theme', isDark ? 'dark' : 'light');
+      state.settings.darkMode = isDark;
+      saveState();
+      drawWheel();
+    }
+
+    function renderItems() {
+      itemCount.textContent = state.items.length;
+      if (state.items.length === 0) {
+        itemsList.innerHTML = `<div class="empty-state">Add some items to get started</div>`;
+        spinBtn.disabled = true;
+        spinBtn.style.opacity = '0.5';
+        spinBtn.style.cursor = 'not-allowed';
+      } else {
+        spinBtn.disabled = false;
+        spinBtn.style.opacity = '1';
+        spinBtn.style.cursor = 'pointer';
+        
+        itemsList.innerHTML = state.items.map((item, index) => `
+          <div class="item-row">
+            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; padding: 0 4px;" title="${escapeHTML(item)}">${escapeHTML(item)}</span>
+            <div class="item-actions">
+              <button class="icon-btn" onclick="editItem(${index})" aria-label="Edit item" title="Edit">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              </button>
+              <button class="icon-btn" onclick="removeItem(${index})" aria-label="Delete item" title="Delete">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      if (state.removedItems.length > 0) {
+        restoreRemovedContainer.style.display = 'block';
+        removedCountSpan.textContent = state.removedItems.length;
+      } else {
+        restoreRemovedContainer.style.display = 'none';
+      }
+
+      drawWheel();
+    }
+
+    function escapeHTML(str) {
+      return str.replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+      );
+    }
+
+    window.removeItem = function(index) {
+      state.items.splice(index, 1);
+      saveState();
+      renderItems();
+    };
+
+    window.editItem = function(index) {
+      const currentVal = state.items[index];
+      const newVal = prompt('Edit item name:', currentVal);
+      if (newVal !== null) {
+        const trimmed = newVal.trim();
+        if (trimmed) {
+          state.items[index] = trimmed;
+          saveState();
+          renderItems();
+          showToast('Item updated');
+        } else {
+          showToast('Item cannot be empty');
+        }
+      }
+    };
+
+    function renderHistory() {
+      if (state.history.length === 0) {
+        historyList.innerHTML = `<div class="empty-state">No spins yet</div>`;
+        return;
+      }
+      historyList.innerHTML = state.history.map((item, idx) => {
+        const displayIndex = String(state.history.length - idx).padStart(2, '0');
+        return `
+          <div class="history-row">
+            <span class="history-index">${displayIndex}</span>
+            <span class="history-item-name" title="${escapeHTML(item)}">${escapeHTML(item)}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function drawWheel() {
+      const width = wheelCanvas.width;
+      const height = wheelCanvas.height;
+      const center = width / 2;
+      const radius = center - 10;
+      const items = state.items;
+      const numItems = items.length;
+
+      ctx.clearRect(0, 0, width, height);
+
+      if (numItems === 0) {
+        ctx.beginPath();
+        ctx.arc(center, center, radius, 0, 2 * Math.PI);
+        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--color-surface-muted').trim();
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--color-border').trim();
+        ctx.stroke();
+
+        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--color-text-muted').trim();
+        ctx.font = '13px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('Add some items to get started', center, center);
+        return;
+      }
+
+      const arcSize = (2 * Math.PI) / numItems;
+      const isDark = state.settings.darkMode;
+      const colors = isDark ? segmentColorsDark : segmentColorsLight;
+      const borderColor = getComputedStyle(document.body).getPropertyValue('--color-border').trim();
+      const textColor = getComputedStyle(document.body).getPropertyValue('--color-text').trim();
+
+      items.forEach((item, index) => {
+        const startAngle = state.currentRotation + index * arcSize;
+        const endAngle = startAngle + arcSize;
+
+        ctx.beginPath();
+        ctx.moveTo(center, center);
+        ctx.arc(center, center, radius, startAngle, endAngle);
+        ctx.closePath();
+
+        ctx.fillStyle = colors[index % colors.length];
+        ctx.fill();
+
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = borderColor;
+        ctx.stroke();
+
+        ctx.save();
+        ctx.translate(center, center);
+        ctx.rotate(startAngle + arcSize / 2);
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = textColor;
+        
+        let fontSize = Math.max(10, Math.min(14, 180 / numItems));
+        ctx.font = `500 ${fontSize}px Inter, sans-serif`;
+
+        const maxTextWidth = radius - 40;
+        let displayText = item;
+        if (ctx.measureText(displayText).width > maxTextWidth) {
+          while (ctx.measureText(displayText + '...').width > maxTextWidth && displayText.length > 0) {
+            displayText = displayText.slice(0, -1);
+          }
+          displayText += '...';
+        }
+
+        ctx.fillText(displayText, radius - 20, 0);
+        ctx.restore();
+      });
+
+      ctx.beginPath();
+      ctx.arc(center, center, 20, 0, 2 * Math.PI);
+      ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--color-surface').trim();
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--color-text').trim();
+      ctx.stroke();
+    }
+
+    function spinWheel() {
+      if (state.isSpinning || state.items.length === 0) return;
+      state.isSpinning = true;
+      spinBtn.disabled = true;
+      spinBtn.style.opacity = '0.5';
+
+      const numItems = state.items.length;
+      const arcSize = (2 * Math.PI) / numItems;
+
+      const targetIndex = Math.floor(Math.random() * numItems);
+      const extraRotations = (Math.floor(Math.random() * 3) + 4) * 2 * Math.PI;
+      
+      const randomOffsetInSegment = (Math.random() - 0.5) * (arcSize * 0.6);
+      const targetSegmentCenter = -targetIndex * arcSize - arcSize / 2 - Math.PI / 2 + randomOffsetInSegment;
+      
+      const finalAngle = state.currentRotation + extraRotations + ((targetSegmentCenter - (state.currentRotation % (2 * Math.PI))) % (2 * Math.PI));
+      // Adjust to ensure forward movement
+      let totalDelta = finalAngle - state.currentRotation;
+      while (totalDelta < extraRotations) {
+        totalDelta += 2 * Math.PI;
+      }
+      const absoluteFinalAngle = state.currentRotation + totalDelta;
+
+      const duration = Number(state.settings.spinDuration);
+      const startTime = performance.now();
+      const startAngle = state.currentRotation;
+
+      let lastTickSegment = -1;
+
+      function animate(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        
+        state.currentRotation = startAngle + (absoluteFinalAngle - startAngle) * easeOut;
+        drawWheel();
+
+        const normalizedCurrentAngle = (2 * Math.PI - (state.currentRotation % (2 * Math.PI))) % (2 * Math.PI);
+        const currentSegment = Math.floor(normalizedCurrentAngle / arcSize) % numItems;
+        if (currentSegment !== lastTickSegment) {
+          playTickSound();
+          lastTickSegment = currentSegment;
+        }
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          state.isSpinning = false;
+          spinBtn.disabled = false;
+          spinBtn.style.opacity = '1';
+          state.currentRotation = absoluteFinalAngle % (2 * Math.PI);
+          onSpinComplete(targetIndex);
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    function onSpinComplete(winnerIndex) {
+      const winner = state.items[winnerIndex];
+      playWinSound();
+      triggerConfetti();
+
+      state.history.unshift(winner);
+      renderHistory();
+
+      winnerNameText.textContent = winner;
+      winnerModal.classList.add('active');
+
+      if (state.settings.removeWinner) {
+        state.items.splice(winnerIndex, 1);
+        state.removedItems.push(winner);
+        renderItems();
+      }
+      saveState();
+    }
+
+    addItemBtn.addEventListener('click', () => {
+      const val = itemInput.value.trim();
+      if (!val) return;
+      state.items.push(val);
+      itemInput.value = '';
+      saveState();
+      renderItems();
+      showToast('Item added');
+    });
+
+    itemInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addItemBtn.click();
+      }
+    });
+
+    bulkAddBtn.addEventListener('click', () => {
+      const text = bulkInput.value.trim();
+      if (!text) return;
+      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      if (lines.length === 0) return;
+      state.items.push(...lines);
+      bulkInput.value = '';
+      saveState();
+      renderItems();
+      showToast(`Added ${lines.length} items`);
+    });
+
+    shuffleBtn.addEventListener('click', () => {
+      if (state.items.length <= 1) return;
+      for (let i = state.items.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [state.items[i], state.items[j]] = [state.items[j], state.items[i]];
+      }
+      saveState();
+      renderItems();
+      showToast('Items shuffled');
+    });
+
+    clearItemsBtn.addEventListener('click', () => {
+      if (confirm('Clear all items?')) {
+        state.items = [];
+        state.removedItems = [];
+        saveState();
+        renderItems();
+        showToast('All items cleared');
+      }
+    });
+
+    restoreRemovedBtn.addEventListener('click', () => {
+      if (state.removedItems.length === 0) return;
+      state.items.push(...state.removedItems);
+      state.removedItems = [];
+      saveState();
+      renderItems();
+      showToast('Removed items restored');
+    });
+
+    clearHistoryBtn.addEventListener('click', () => {
+      if (confirm('Clear spin history?')) {
+        state.history = [];
+        if (state.settings.restoreRemovedOnClearHistory && state.removedItems.length > 0) {
+          state.items.push(...state.removedItems);
+          state.removedItems = [];
+        }
+        saveState();
+        renderHistory();
+        renderItems();
+        showToast('History cleared');
+      }
+    });
+
+    spinBtn.addEventListener('click', () => {
+      spinWheel();
+    });
+
+    window.addEventListener('keydown', (e) => {
+      const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+      const isInputFocused = activeTag === 'input' || activeTag === 'textarea' || activeTag === 'select';
+
+      if (e.code === 'Space' && !isInputFocused) {
+        e.preventDefault();
+        spinWheel();
+      } else if (e.code === 'Escape') {
+        winnerModal.classList.remove('active');
+        settingsModal.classList.remove('active');
+      }
+    });
+
+    openSettingsBtn.addEventListener('click', () => {
+      settingAutoRemove.checked = state.settings.removeWinner;
+      settingRestoreOnClear.checked = state.settings.restoreRemovedOnClearHistory;
+      settingDuration.value = String(state.settings.spinDuration);
+      settingSound.checked = state.settings.sound;
+      settingConfetti.checked = state.settings.confetti;
+      settingDarkMode.checked = state.settings.darkMode;
+      settingsModal.classList.add('active');
+    });
+
+    closeSettingsModal.addEventListener('click', () => settingsModal.classList.remove('active'));
+    settingsOkBtn.addEventListener('click', () => {
+      state.settings.removeWinner = settingAutoRemove.checked;
+      state.settings.restoreRemovedOnClearHistory = settingRestoreOnClear.checked;
+      state.settings.spinDuration = Number(settingDuration.value);
+      state.settings.sound = settingSound.checked;
+      state.settings.confetti = settingConfetti.checked;
+      applyDarkMode(settingDarkMode.checked);
+      saveState();
+      settingsModal.classList.remove('active');
+      showToast('Settings saved');
+    });
+
+    settingDarkMode.addEventListener('change', (e) => {
+      applyDarkMode(e.target.checked);
+    });
+
+    closeWinnerModal.addEventListener('click', () => winnerModal.classList.remove('active'));
+    winnerOkBtn.addEventListener('click', () => winnerModal.classList.remove('active'));
+
+    copyWinnerBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(winnerNameText.textContent).then(() => {
+        copyWinnerBtn.textContent = 'Copied!';
+        setTimeout(() => { copyWinnerBtn.textContent = 'Copy Winner'; }, 1500);
+        showToast('Winner copied to clipboard');
+      }).catch(() => {
+        showToast('Failed to copy');
+      });
+    });
+
+    exportItemsBtn.addEventListener('click', () => {
+      const text = state.items.join('\n');
+      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'wheel-items.txt';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Items exported');
+    });
+
+    exportJsonBtn.addEventListener('click', () => {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
+      const a = document.createElement('a');
+      a.href = dataStr;
+      a.download = 'spin-wheel-state.json';
+      a.click();
+      showToast('State exported');
+    });
+
+    resetAppBtn.addEventListener('click', () => {
+      if (confirm('Reset the entire app?')) {
+        localStorage.removeItem(STORAGE_KEY);
+        location.reload();
+      }
+    });
+
+    loadState();
+    applyDarkMode(state.settings.darkMode);
+    renderItems();
+    renderHistory();
+  </script>
+</body>
+</html>
