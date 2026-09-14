@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Connect Four</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='5' cy='12' r='3' fill='%23111'/%3E%3Ccircle cx='12.5' cy='12' r='3' fill='none' stroke='%23111' stroke-width='2'/%3E%3Ccircle cx='20' cy='12' r='3' fill='%23111'/%3E%3C/svg%3E">
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  .focuz-return {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 1000;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid #111;
+    background: #fff;
+    color: #111;
+    font-family: Arial, sans-serif;
+    font-size: 12.5px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 120ms ease, color 120ms ease;
+  }
+
+  .focuz-return:hover {
+    background: #111;
+    color: #fff;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #fff;
+    color: #111;
+    font-family: Arial, sans-serif;
+  }
+
+  .game {
+    width: min(92vw, 520px);
+    text-align: center;
+  }
+
+  h1 {
+    margin: 0 0 6px;
+    font-size: 32px;
+  }
+
+  .subtitle {
+    margin-bottom: 18px;
+    color: #777;
+    font-size: 14px;
+  }
+
+  .modes {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+
+  .mode {
+    padding: 8px 15px;
+    border: 2px solid #111;
+    border-radius: 7px;
+    background: #fff;
+    color: #111;
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  .mode:hover {
+    background: #f2f2f2;
+  }
+
+  .mode.active {
+    background: #111;
+    color: #fff;
+  }
+
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 34px;
+    margin-bottom: 18px;
+    font-size: 13px;
+  }
+
+  .stats strong {
+    display: block;
+    margin-top: 4px;
+    font-size: 20px;
+  }
+
+  .board {
+    width: min(90vw, 490px);
+    aspect-ratio: 7 / 6;
+    margin: 0 auto 20px;
+    padding: 9px;
+
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    gap: 7px;
+
+    background: #ddd;
+    border: 3px solid #111;
+    border-radius: 12px;
+  }
+
+  .cell {
+    border: 2px solid #111;
+    border-radius: 50%;
+    background: #fff;
+    cursor: pointer;
+    transition:
+      transform 0.12s,
+      background 0.12s;
+  }
+
+  .cell:hover {
+    transform: scale(0.94);
+    background: #f2f2f2;
+  }
+
+  .cell.player {
+    background: #111;
+  }
+
+  .cell.ai {
+    background: #777;
+  }
+
+  .cell.win {
+    box-shadow:
+      inset 0 0 0 4px #fff,
+      0 0 0 2px #111;
+  }
+
+  .status {
+    min-height: 22px;
+    margin-bottom: 16px;
+    color: #555;
+    font-size: 14px;
+  }
+
+  .start {
+    padding: 11px 26px;
+    border: 2px solid #111;
+    border-radius: 8px;
+    background: #111;
+    color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+  }
+
+  .start:hover {
+    background: #333;
+  }
+
+  .hint {
+    margin-top: 16px;
+    color: #999;
+    font-size: 12px;
+  }
+</style>
+</head>
+
+<body>
+
+<a class="focuz-return" href="../index.html" aria-label="Back to FocuZ">← FocuZ</a>
+
+<div class="game">
+  <h1>Connect Four</h1>
+  <div class="subtitle">Get four in a row</div>
+
+  <div class="modes">
+    <button class="mode active" id="aiMode">
+      VS AI
+    </button>
+
+    <button class="mode" id="twoPlayerMode">
+      2 Players
+    </button>
+  </div>
+
+  <div class="stats" id="stats">
+    <div>
+      WINS
+      <strong id="wins">0</strong>
+    </div>
+
+    <div>
+      LOSSES
+      <strong id="losses">0</strong>
+    </div>
+  </div>
+
+  <div class="board" id="board"></div>
+
+  <div class="status" id="status">
+    Your turn
+  </div>
+
+  <button class="start" id="restart">
+    New Game
+  </button>
+
+  <div class="hint">
+    Click a column · 1–7 keys · R to restart
+  </div>
+</div>
+
+<script>
+  const ROWS = 6;
+  const COLS = 7;
+
+  const boardEl = document.getElementById("board");
+  const statusEl = document.getElementById("status");
+  const winsEl = document.getElementById("wins");
+  const lossesEl = document.getElementById("losses");
+  const statsEl = document.getElementById("stats");
+
+  const restartBtn =
+    document.getElementById("restart");
+
+  const aiMode =
+    document.getElementById("aiMode");
+
+  const twoPlayerMode =
+    document.getElementById("twoPlayerMode");
+
+  let board = [];
+  let gameOver = false;
+  let currentPlayer = 1;
+  let gameMode = "ai";
+  let aiThinking = false;
+
+  let wins =
+    Number(localStorage.getItem("connectFourWins")) || 0;
+
+  let losses =
+    Number(localStorage.getItem("connectFourLosses")) || 0;
+
+  winsEl.textContent = wins;
+  lossesEl.textContent = losses;
+
+  function createBoard() {
+    board = Array.from(
+      { length: ROWS },
+      () => Array(COLS).fill(0)
+    );
+  }
+
+  function render() {
+    boardEl.innerHTML = "";
+
+    for (let row = 0; row < ROWS; row++) {
+      for (let col = 0; col < COLS; col++) {
+        const cell = document.createElement("button");
+
+        cell.className = "cell";
+
+        if (board[row][col] === 1) {
+          cell.classList.add("player");
+        }
+
+        if (board[row][col] === 2) {
+          cell.classList.add("ai");
+        }
+
+        cell.setAttribute(
+          "aria-label",
+          `Row ${row + 1}, column ${col + 1}`
+        );
+
+        cell.addEventListener("click", () => {
+          playColumn(col);
+        });
+
+        boardEl.appendChild(cell);
+      }
+    }
+  }
+
+  function getAvailableRow(col) {
+    for (let row = ROWS - 1; row >= 0; row--) {
+      if (board[row][col] === 0) {
+        return row;
+      }
+    }
+
+    return -1;
+  }
+
+  function dropPiece(col, player) {
+    const row = getAvailableRow(col);
+
+    if (row === -1) {
+      return -1;
+    }
+
+    board[row][col] = player;
+    return row;
+  }
+
+  function getWinningCells(player) {
+    const directions = [
+      [0, 1],
+      [1, 0],
+      [1, 1],
+      [1, -1]
+    ];
+
+    for (let row = 0; row < ROWS; row++) {
+      for (let col = 0; col < COLS; col++) {
+
+        if (board[row][col] !== player) {
+          continue;
+        }
+
+        for (const [dr, dc] of directions) {
+          const cells = [];
+
+          for (let i = 0; i < 4; i++) {
+            const r = row + dr * i;
+            const c = col + dc * i;
+
+            if (
+              r < 0 ||
+              r >= ROWS ||
+              c < 0 ||
+              c >= COLS ||
+              board[r][c] !== player
+            ) {
+              break;
+            }
+
+            cells.push([r, c]);
+          }
+
+          if (cells.length === 4) {
+            return cells;
+          }
+        }
+      }
+    }
+
+    return null;
+  }
+
+  function isBoardFull() {
+    return board[0].every(
+      cell => cell !== 0
+    );
+  }
+
+  function highlightWin(cells) {
+    if (!cells) {
+      return;
+    }
+
+    const elements =
+      boardEl.querySelectorAll(".cell");
+
+    cells.forEach(([row, col]) => {
+      const index = row * COLS + col;
+      elements[index].classList.add("win");
+    });
+  }
+
+  function finish(player, winningCells = null) {
+    gameOver = true;
+    aiThinking = false;
+
+    render();
+
+    if (winningCells) {
+      highlightWin(winningCells);
+    }
+
+    if (gameMode === "ai") {
+      if (player === 1) {
+        wins++;
+
+        localStorage.setItem(
+          "connectFourWins",
+          wins
+        );
+
+        winsEl.textContent = wins;
+        statusEl.textContent = "You win!";
+      } else if (player === 2) {
+        losses++;
+
+        localStorage.setItem(
+          "connectFourLosses",
+          losses
+        );
+
+        lossesEl.textContent = losses;
+        statusEl.textContent = "Computer wins";
+      } else {
+        statusEl.textContent = "Draw";
+      }
+
+      return;
+    }
+
+    if (player === 1) {
+      statusEl.textContent = "Player 1 wins!";
+    } else if (player === 2) {
+      statusEl.textContent = "Player 2 wins!";
+    } else {
+      statusEl.textContent = "Draw";
+    }
+  }
+
+  function checkGame(player) {
+    const winningCells =
+      getWinningCells(player);
+
+    if (winningCells) {
+      finish(player, winningCells);
+      return true;
+    }
+
+    if (isBoardFull()) {
+      finish(0);
+      return true;
+    }
+
+    return false;
+  }
+
+  function playColumn(col) {
+    if (gameOver || aiThinking) {
+      return;
+    }
+
+    const row = dropPiece(
+      col,
+      currentPlayer
+    );
+
+    if (row === -1) {
+      statusEl.textContent =
+        "That column is full";
+      return;
+    }
+
+    render();
+
+    if (checkGame(currentPlayer)) {
+      return;
+    }
+
+    if (gameMode === "two") {
+      currentPlayer =
+        currentPlayer === 1 ? 2 : 1;
+
+      updateTurnStatus();
+      return;
+    }
+
+    // VS AI
+    if (currentPlayer === 1) {
+      currentPlayer = 2;
+      aiThinking = true;
+
+      statusEl.textContent =
+        "Computer thinking...";
+
+      setTimeout(computerMove, 450);
+    }
+  }
+
+  function computerMove() {
+    if (gameOver) {
+      return;
+    }
+
+    const col =
+      chooseComputerColumn();
+
+    dropPiece(col, 2);
+
+    render();
+
+    if (checkGame(2)) {
+      return;
+    }
+
+    currentPlayer = 1;
+    aiThinking = false;
+
+    statusEl.textContent =
+      "Your turn";
+  }
+
+  function chooseComputerColumn() {
+    // Try to win.
+    for (let col = 0; col < COLS; col++) {
+      const row =
+        getAvailableRow(col);
+
+      if (row === -1) {
+        continue;
+      }
+
+      board[row][col] = 2;
+
+      if (getWinningCells(2)) {
+        board[row][col] = 0;
+        return col;
+      }
+
+      board[row][col] = 0;
+    }
+
+    // Block the player.
+    for (let col = 0; col < COLS; col++) {
+      const row =
+        getAvailableRow(col);
+
+      if (row === -1) {
+        continue;
+      }
+
+      board[row][col] = 1;
+
+      if (getWinningCells(1)) {
+        board[row][col] = 0;
+        return col;
+      }
+
+      board[row][col] = 0;
+    }
+
+    // Prefer the center.
+    const preferred = [
+      3, 2, 4, 1, 5, 0, 6
+    ];
+
+    const available =
+      preferred.filter(
+        col => getAvailableRow(col) !== -1
+      );
+
+    return available[
+      Math.floor(
+        Math.random() *
+        Math.min(3, available.length)
+      )
+    ];
+  }
+
+  function updateTurnStatus() {
+    if (gameMode === "two") {
+      if (currentPlayer === 1) {
+        statusEl.textContent =
+          "Player 1's turn";
+      } else {
+        statusEl.textContent =
+          "Player 2's turn";
+      }
+
+      return;
+    }
+
+    statusEl.textContent =
+      currentPlayer === 1
+        ? "Your turn"
+        : "Computer thinking...";
+  }
+
+  function newGame() {
+    createBoard();
+
+    gameOver = false;
+    aiThinking = false;
+    currentPlayer = 1;
+
+    updateTurnStatus();
+    render();
+  }
+
+  function setMode(mode) {
+    gameMode = mode;
+
+    if (mode === "ai") {
+      aiMode.classList.add("active");
+      twoPlayerMode.classList.remove("active");
+
+      statsEl.style.display = "flex";
+    } else {
+      twoPlayerMode.classList.add("active");
+      aiMode.classList.remove("active");
+
+      statsEl.style.display = "none";
+    }
+
+    newGame();
+  }
+
+  aiMode.addEventListener(
+    "click",
+    () => setMode("ai")
+  );
+
+  twoPlayerMode.addEventListener(
+    "click",
+    () => setMode("two")
+  );
+
+  restartBtn.addEventListener(
+    "click",
+    newGame
+  );
+
+  document.addEventListener(
+    "keydown",
+    event => {
+      if (
+        event.key.toLowerCase() === "r"
+      ) {
+        newGame();
+        return;
+      }
+
+      if (
+        event.key >= "1" &&
+        event.key <= "7"
+      ) {
+        playColumn(
+          Number(event.key) - 1
+        );
+      }
+    }
+  );
+
+  newGame();
+</script>
+
+</body>
+</html>
