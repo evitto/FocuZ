@@ -33,6 +33,9 @@
       --radius: 8px;
       --transition: 170ms ease;
       --content-width: 620px;
+      --dash-length: 8px;
+      --dash-gap: 6px;
+      --dash-thickness: 1.5px;
     }
 
     :root[data-theme="dark"] {
@@ -353,9 +356,10 @@
       color: var(--white);
       font-size: 12px;
       line-height: 1.4;
+      text-align: center;
       pointer-events: none;
       opacity: 0;
-      transform: translate(-50%, -100%);
+      transform: translate(-50%, 0);
       transition: opacity 120ms ease;
     }
 
@@ -453,12 +457,43 @@
       width: 100%;
       min-height: 40px;
       margin-top: 12px;
-      border: 1px dashed var(--gray-2);
+      border: none;
       border-radius: var(--radius);
-      background: var(--white);
+      background-color: var(--white);
+      background-image:
+        linear-gradient(
+          to right,
+          var(--gray-2) 0 var(--dash-length),
+          transparent var(--dash-length)
+            calc(var(--dash-length) + var(--dash-gap))
+        ),
+        linear-gradient(
+          to right,
+          var(--gray-2) 0 var(--dash-length),
+          transparent var(--dash-length)
+            calc(var(--dash-length) + var(--dash-gap))
+        ),
+        linear-gradient(
+          to bottom,
+          var(--gray-2) 0 var(--dash-length),
+          transparent var(--dash-length)
+            calc(var(--dash-length) + var(--dash-gap))
+        ),
+        linear-gradient(
+          to bottom,
+          var(--gray-2) 0 var(--dash-length),
+          transparent var(--dash-length)
+            calc(var(--dash-length) + var(--dash-gap))
+        );
+      background-position: top, bottom, left, right;
+      background-size:
+        calc(var(--dash-length) + var(--dash-gap)) var(--dash-thickness),
+        calc(var(--dash-length) + var(--dash-gap)) var(--dash-thickness),
+        var(--dash-thickness) calc(var(--dash-length) + var(--dash-gap)),
+        var(--dash-thickness) calc(var(--dash-length) + var(--dash-gap));
+      background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
       color: var(--gray-4);
       transition:
-        border-color var(--transition),
         color var(--transition),
         background-color var(--transition);
     }
@@ -468,7 +503,6 @@
       height: var(--grid-icon-size, 96px);
       min-height: 0;
       margin-top: 0;
-      border-style: solid;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -477,14 +511,13 @@
     }
 
     .add-app-button:hover {
-      border-color: var(--gray-3);
-      background: var(--gray-1);
+      background-color: var(--gray-1);
       color: var(--black);
     }
 
     .add-app-button.grid-mode:hover {
-      background: var(--black);
-      border-color: var(--black);
+      background-color: var(--black);
+      background-image: none;
       color: var(--white);
     }
 
@@ -2157,26 +2190,27 @@
 
     applyLayoutPrefs();
 
-    /* Floating tooltip that follows the cursor over a grid tile, showing
-       that app's description. */
+    /* Floating card anchored just below a grid tile, showing that app's
+       description while it's hovered. */
     const tileTooltip = document.createElement("div");
     tileTooltip.className = "tile-tooltip";
     tileTooltip.setAttribute("role", "tooltip");
     document.body.appendChild(tileTooltip);
 
-    function positionTileTooltip(event) {
-      tileTooltip.style.left = `${event.clientX}px`;
-      tileTooltip.style.top = `${event.clientY - 12}px`;
+    function positionTileTooltip(tileElement) {
+      const rect = tileElement.getBoundingClientRect();
+      tileTooltip.style.left = `${rect.left + rect.width / 2}px`;
+      tileTooltip.style.top = `${rect.bottom + 8}px`;
     }
 
-    function showTileTooltip(text, event) {
+    function showTileTooltip(text, tileElement) {
       if (!text) {
         return;
       }
 
       tileTooltip.textContent = text;
       tileTooltip.classList.add("visible");
-      positionTileTooltip(event);
+      positionTileTooltip(tileElement);
     }
 
     function hideTileTooltip() {
@@ -2528,12 +2562,8 @@
           ? `${app.name} — ${app.description}`
           : app.name;
 
-      tile.addEventListener("mouseenter", (event) => {
-        showTileTooltip(tooltipText, event);
-      });
-
-      tile.addEventListener("mousemove", (event) => {
-        positionTileTooltip(event);
+      tile.addEventListener("mouseenter", () => {
+        showTileTooltip(tooltipText, tile);
       });
 
       tile.addEventListener("mouseleave", () => {
