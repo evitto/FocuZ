@@ -1,8 +1,9 @@
 // Bump this whenever the cached files change, so old caches get cleared out.
-const CACHE_NAME = "focuz-cache-v2";
+const CACHE_NAME = "focuz-cache-v3";
 
 const APP_SHELL = [
   "./index.html",
+  "./viewer.html",
   "./manifest.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png",

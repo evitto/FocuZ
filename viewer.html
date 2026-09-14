@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FocuZ</title>
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png" />
+
+<style>
+  :root {
+    --black: #111111;
+    --white: #ffffff;
+    --gray-2: #e5e5e5;
+  }
+
+  :root[data-theme="dark"] {
+    --black: #f2f2f2;
+    --white: #171717;
+    --gray-2: #333333;
+  }
+
+  :root[data-theme="pink"] {
+    --black: #6b1d43;
+    --white: #fff0f5;
+    --gray-2: #ffc2d9;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    margin: 0;
+    height: 100%;
+    background: var(--white);
+  }
+
+  .focuz-return {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 1000;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--gray-2);
+    background: var(--white);
+    color: var(--black);
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 12.5px;
+    font-weight: 500;
+    text-decoration: none;
+    transition:
+      background 120ms ease,
+      color 120ms ease;
+  }
+
+  .focuz-return:hover {
+    background: var(--black);
+    color: var(--white);
+  }
+
+  iframe {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .missing {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    padding: 24px;
+    color: var(--black);
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .missing a {
+    color: inherit;
+  }
+</style>
+</head>
+
+<body>
+
+  <a class="focuz-return" href="index.html" aria-label="Back to FocuZ">← FocuZ</a>
+
+  <div id="content"></div>
+
+  <script>
+    const THEME_KEY = "minimalWebAppDashboardTheme";
+
+    try {
+      const savedTheme = localStorage.getItem(THEME_KEY);
+
+      if (savedTheme === "dark" || savedTheme === "pink") {
+        document.documentElement.setAttribute("data-theme", savedTheme);
+      }
+    } catch (error) {
+      // Theme is purely cosmetic here — ignore storage failures.
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const target = params.get("app");
+    const content = document.getElementById("content");
+
+    if (!target) {
+      content.innerHTML =
+        '<div class="missing">No app specified.<br /><a href="index.html">Return to FocuZ</a></div>';
+    } else {
+      const iframe = document.createElement("iframe");
+      iframe.src = target;
+      iframe.title = "App";
+      content.appendChild(iframe);
+    }
+  </script>
+
+</body>
+</html>

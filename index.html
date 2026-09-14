@@ -1752,6 +1752,36 @@
       return Math.random().toString(36).slice(2, 8);
     }
 
+    /* Relative paths and blob: URLs are same-origin, so they can be shown
+       inside viewer.html's iframe (which is what gives them the "← FocuZ"
+       button automatically). Cross-origin http(s) links are sent to
+       directly instead — most external sites block being iframed anyway
+       (X-Frame-Options / CSP), so wrapping them would just show a blank
+       frame. */
+    function canEmbedInViewer(path) {
+      if (path.startsWith("blob:")) {
+        return true;
+      }
+
+      if (/^https?:\/\//i.test(path)) {
+        try {
+          return new URL(path).origin === window.location.origin;
+        } catch (error) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    function resolveAppUrl(path) {
+      if (canEmbedInViewer(path)) {
+        return `viewer.html?app=${encodeURIComponent(path)}`;
+      }
+
+      return path;
+    }
+
     function isValidApp(app) {
       return (
         app &&
@@ -1931,7 +1961,7 @@
             return;
           }
 
-          window.location.href = app.path;
+          window.location.href = resolveAppUrl(app.path);
         }
 
         row.addEventListener("click", openApp);
