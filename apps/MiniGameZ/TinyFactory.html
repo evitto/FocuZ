@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TINY FACTORY</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --black: #111;
+  --white: #fff;
+  --gray: #888;
+  --light: #eee;
+  --green: #2f8f46;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #fff;
+  color: var(--black);
+  font-family: Arial, Helvetica, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.game {
+  width: min(92vw, 620px);
+  padding: 24px 0;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  margin-bottom: 14px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 24px;
+  letter-spacing: .08em;
+}
+
+.money {
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+.money span {
+  font-weight: bold;
+}
+
+/* FACTORY */
+
+.factory {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1.65 / 1;
+  border: 2px solid var(--black);
+  overflow: hidden;
+  background: #fff;
+}
+
+/* SKY / BACKGROUND */
+
+.factory-sky {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      to bottom,
+      #fff 0%,
+      #fff 65%,
+      #f1f1f1 65%,
+      #f1f1f1 100%
+    );
+}
+
+.floor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 35%;
+  border-top: 1px solid #ccc;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 28px,
+      rgba(0,0,0,.035) 28px 29px
+    ),
+    #f1f1f1;
+}
+
+/* ROOF */
+
+.roof {
+  position: absolute;
+  left: 8%;
+  top: 18%;
+  width: 84%;
+  height: 13%;
+  border: 2px solid var(--black);
+  background: #fff;
+}
+
+.roof::before,
+.roof::after {
+  content: "";
+  position: absolute;
+  bottom: -17px;
+  width: 2px;
+  height: 17px;
+  background: var(--black);
+}
+
+.roof::before {
+  left: 12%;
+}
+
+.roof::after {
+  right: 12%;
+}
+
+/* CHIMNEY */
+
+.chimney {
+  position: absolute;
+  right: 18%;
+  top: 6%;
+  width: 30px;
+  height: 48px;
+  border: 2px solid var(--black);
+  border-bottom: 0;
+  background: white;
+}
+
+.smoke {
+  position: absolute;
+  right: 19%;
+  top: 2%;
+  width: 7px;
+  height: 7px;
+  border: 1px solid #aaa;
+  border-radius: 50%;
+  animation: smoke 3s ease-out infinite;
+}
+
+.smoke.two {
+  right: 22%;
+  animation-delay: 1.2s;
+}
+
+@keyframes smoke {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+
+  30% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(10px, -30px);
+    opacity: 0;
+  }
+}
+
+/* FACTORY BUILDING */
+
+.building {
+  position: absolute;
+  left: 12%;
+  bottom: 19%;
+  width: 76%;
+  height: 47%;
+  border: 2px solid var(--black);
+  background: #fff;
+}
+
+.window {
+  position: absolute;
+  top: 18%;
+  width: 13%;
+  height: 23%;
+  border: 2px solid var(--black);
+}
+
+.window:nth-child(1) {
+  left: 9%;
+}
+
+.window:nth-child(2) {
+  left: 28%;
+}
+
+.window:nth-child(3) {
+  left: 47%;
+}
+
+.window:nth-child(4) {
+  left: 66%;
+}
+
+/* DOOR */
+
+.door {
+  position: absolute;
+  bottom: 0;
+  left: 43%;
+  width: 14%;
+  height: 40%;
+  border: 2px solid var(--black);
+  border-bottom: 0;
+}
+
+/* CONVEYOR */
+
+.conveyor {
+  position: absolute;
+  left: 5%;
+  right: 5%;
+  bottom: 7%;
+  height: 11px;
+  border: 2px solid var(--black);
+  background:
+    repeating-linear-gradient(
+      90deg,
+      #fff 0 13px,
+      #111 13px 15px
+    );
+}
+
+/* BOXES MOVING */
+
+.box {
+  position: absolute;
+  bottom: 8.5%;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--black);
+  background: #fff;
+  animation: production 5s linear infinite;
+}
+
+.box:nth-child(2) {
+  animation-delay: -2s;
+}
+
+.box:nth-child(3) {
+  animation-delay: -4s;
+}
+
+@keyframes production {
+  from {
+    left: 7%;
+  }
+
+  to {
+    left: 87%;
+  }
+}
+
+/* LIGHT */
+
+.status-light {
+  position: absolute;
+  right: 5%;
+  top: 6%;
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--black);
+  border-radius: 50%;
+  background: var(--green);
+}
+
+/* STATS */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 2px solid var(--black);
+  border-top: 0;
+}
+
+.stat {
+  padding: 10px;
+  border-right: 1px solid var(--black);
+}
+
+.stat:last-child {
+  border-right: 0;
+}
+
+.stat-label {
+  font-size: 10px;
+  color: var(--gray);
+  letter-spacing: .08em;
+}
+
+.stat-value {
+  margin-top: 3px;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* SHOP */
+
+.section-title {
+  margin: 22px 0 8px;
+  font-size: 10px;
+  color: var(--gray);
+  letter-spacing: .1em;
+}
+
+.shop {
+  display: grid;
+  gap: 7px;
+}
+
+button {
+  font: inherit;
+  color: var(--black);
+  background: white;
+  border: 1px solid var(--black);
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  background: var(--black);
+  color: white;
+}
+
+button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+button:disabled {
+  color: #aaa;
+  border-color: #ccc;
+  cursor: not-allowed;
+}
+
+.shop-item {
+  width: 100%;
+  min-height: 58px;
+  padding: 9px 11px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  text-align: left;
+  align-items: center;
+}
+
+.item-name {
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: .04em;
+}
+
+.item-description {
+  margin-top: 3px;
+  font-size: 11px;
+  color: var(--gray);
+}
+
+.item-price {
+  text-align: right;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.item-owned {
+  margin-top: 3px;
+  font-size: 10px;
+  color: var(--gray);
+}
+
+.message {
+  margin-top: 16px;
+  padding: 11px;
+  border: 1px solid #ccc;
+  text-align: center;
+  font-size: 11px;
+  color: var(--gray);
+}
+
+.controls {
+  display: flex;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.controls button {
+  flex: 1;
+  padding: 10px;
+  font-size: 10px;
+  letter-spacing: .08em;
+}
+
+.hint {
+  margin-top: 12px;
+  text-align: center;
+  font-size: 10px;
+  color: #999;
+}
+
+@media (max-width: 480px) {
+  .game {
+    width: 94vw;
+  }
+
+  h1 {
+    font-size: 20px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<main class="game">
+
+<header>
+  <h1>TINY FACTORY</h1>
+
+  <div class="money">
+    ◉ <span id="money">50</span>
+  </div>
+</header>
+
+
+<section class="factory">
+
+  <div class="factory-sky"></div>
+
+  <div class="roof"></div>
+
+  <div class="chimney"></div>
+
+  <div class="smoke"></div>
+  <div class="smoke two"></div>
+
+  <div class="building">
+
+    <div class="window"></div>
+    <div class="window"></div>
+    <div class="window"></div>
+    <div class="window"></div>
+
+    <div class="door"></div>
+
+  </div>
+
+  <div class="floor"></div>
+
+  <div class="status-light"></div>
+
+  <div class="conveyor"></div>
+
+  <div class="box"></div>
+  <div class="box"></div>
+  <div class="box"></div>
+
+</section>
+
+
+<section class="stats">
+
+  <div class="stat">
+
+    <div class="stat-label">
+      PRODUCTION
+    </div>
+
+    <div class="stat-value">
+      ◉ <span id="income">0</span>/s
+    </div>
+
+  </div>
+
+
+  <div class="stat">
+
+    <div class="stat-label">
+      MACHINES
+    </div>
+
+    <div class="stat-value">
+      <span id="machines">0</span>
+    </div>
+
+  </div>
+
+
+  <div class="stat">
+
+    <div class="stat-label">
+      FACTORY
+    </div>
+
+    <div class="stat-value">
+      LV <span id="level">1</span>
+    </div>
+
+  </div>
+
+</section>
+
+
+<div class="section-title">
+  PRODUCTION
+</div>
+
+
+<section class="shop">
+
+
+<button class="shop-item" id="buyMachine">
+
+  <div>
+
+    <div class="item-name">
+      MACHINE
+    </div>
+
+    <div class="item-description">
+      Produces ◉1 every second.
+    </div>
+
+  </div>
+
+  <div class="item-price">
+
+    ◉ <span id="machineCost">25</span>
+
+    <div class="item-owned">
+      OWNED <span id="machineOwned">0</span>
+    </div>
+
+  </div>
+
+</button>
+
+
+<button class="shop-item" id="buyRobot">
+
+  <div>
+
+    <div class="item-name">
+      ROBOT
+    </div>
+
+    <div class="item-description">
+      Produces ◉5 every second.
+    </div>
+
+  </div>
+
+  <div class="item-price">
+
+    ◉ <span id="robotCost">100</span>
+
+    <div class="item-owned">
+      OWNED <span id="robotOwned">0</span>
+    </div>
+
+  </div>
+
+</button>
+
+
+<button class="shop-item" id="buySpeed">
+
+  <div>
+
+    <div class="item-name">
+      FASTER LINE
+    </div>
+
+    <div class="item-description">
+      Increases all production by 25%.
+    </div>
+
+  </div>
+
+  <div class="item-price">
+
+    ◉ <span id="speedCost">150</span>
+
+    <div class="item-owned">
+      LEVEL <span id="speedOwned">0</span>
+    </div>
+
+  </div>
+
+</button>
+
+
+<button class="shop-item" id="buyExpansion">
+
+  <div>
+
+    <div class="item-name">
+      FACTORY EXPANSION
+    </div>
+
+    <div class="item-description">
+      Unlocks more production capacity.
+    </div>
+
+  </div>
+
+  <div class="item-price">
+
+    ◉ <span id="expansionCost">300</span>
+
+    <div class="item-owned">
+      LEVEL <span id="expansionOwned">1</span>
+    </div>
+
+  </div>
+
+</button>
+
+
+</section>
+
+
+<div class="message" id="message">
+  The factory is waiting to start.
+</div>
+
+
+<div class="controls">
+
+  <button id="saveButton">
+    SAVE
+  </button>
+
+  <button id="resetButton">
+    NEW FACTORY
+  </button>
+
+</div>
+
+
+<div class="hint">
+  Production runs automatically · R to restart
+</div>
+
+</main>
+
+
+<script>
+
+/*
+  TINY FACTORY
+
+  No repetitive clicking.
+
+  The factory produces automatically.
+  The player occasionally buys machines,
+  robots and upgrades.
+*/
+
+
+const SAVE_KEY =
+  "tinyFactorySave";
+
+
+let state = {
+
+  /*
+    Enough starting money to buy
+    the first machine immediately.
+  */
+
+  money: 50,
+
+  machines: 0,
+  robots: 0,
+
+  speed: 0,
+
+  expansion: 1,
+
+  totalProduced: 0
+
+};
+
+
+/* ---------- ELEMENTS ---------- */
+
+const moneyEl =
+  document.getElementById("money");
+
+const incomeEl =
+  document.getElementById("income");
+
+const machinesEl =
+  document.getElementById("machines");
+
+const levelEl =
+  document.getElementById("level");
+
+const machineCostEl =
+  document.getElementById("machineCost");
+
+const robotCostEl =
+  document.getElementById("robotCost");
+
+const speedCostEl =
+  document.getElementById("speedCost");
+
+const expansionCostEl =
+  document.getElementById("expansionCost");
+
+const machineOwnedEl =
+  document.getElementById("machineOwned");
+
+const robotOwnedEl =
+  document.getElementById("robotOwned");
+
+const speedOwnedEl =
+  document.getElementById("speedOwned");
+
+const expansionOwnedEl =
+  document.getElementById("expansionOwned");
+
+const buyMachine =
+  document.getElementById("buyMachine");
+
+const buyRobot =
+  document.getElementById("buyRobot");
+
+const buySpeed =
+  document.getElementById("buySpeed");
+
+const buyExpansion =
+  document.getElementById("buyExpansion");
+
+const message =
+  document.getElementById("message");
+
+
+/* ---------- COSTS ---------- */
+
+function machineCost() {
+
+  return Math.floor(
+    25 *
+    Math.pow(
+      1.18,
+      state.machines
+    )
+  );
+
+}
+
+
+function robotCost() {
+
+  return Math.floor(
+    100 *
+    Math.pow(
+      1.22,
+      state.robots
+    )
+  );
+
+}
+
+
+function speedCost() {
+
+  return Math.floor(
+    150 *
+    Math.pow(
+      1.4,
+      state.speed
+    )
+  );
+
+}
+
+
+function expansionCost() {
+
+  return Math.floor(
+    300 *
+    Math.pow(
+      1.8,
+      state.expansion - 1
+    )
+  );
+
+}
+
+
+/* ---------- PRODUCTION ---------- */
+
+function productionPerSecond() {
+
+  const base =
+
+    state.machines * 1 +
+
+    state.robots * 5;
+
+
+  /*
+    Each faster-line upgrade
+    multiplies total production.
+  */
+
+  const multiplier =
+    1 + state.speed * 0.25;
+
+
+  return base * multiplier;
+
+}
+
+
+/* ---------- NUMBER FORMAT ---------- */
+
+function formatNumber(value) {
+
+  if (value < 1000) {
+    return Math.floor(value);
+  }
+
+  if (value < 1000000) {
+
+    return (
+      value / 1000
+    ).toFixed(1) + "K";
+
+  }
+
+  if (value < 1000000000) {
+
+    return (
+      value / 1000000
+    ).toFixed(1) + "M";
+
+  }
+
+  return (
+    value / 1000000000
+  ).toFixed(1) + "B";
+
+}
+
+
+/* ---------- RENDER ---------- */
+
+function render() {
+
+  moneyEl.textContent =
+    formatNumber(state.money);
+
+
+  incomeEl.textContent =
+    formatNumber(
+      productionPerSecond()
+    );
+
+
+  machinesEl.textContent =
+    state.machines +
+    state.robots;
+
+
+  levelEl.textContent =
+    state.expansion;
+
+
+  machineCostEl.textContent =
+    formatNumber(machineCost());
+
+
+  robotCostEl.textContent =
+    formatNumber(robotCost());
+
+
+  speedCostEl.textContent =
+    formatNumber(speedCost());
+
+
+  expansionCostEl.textContent =
+    formatNumber(expansionCost());
+
+
+  machineOwnedEl.textContent =
+    state.machines;
+
+
+  robotOwnedEl.textContent =
+    state.robots;
+
+
+  speedOwnedEl.textContent =
+    state.speed;
+
+
+  expansionOwnedEl.textContent =
+    state.expansion;
+
+
+  buyMachine.disabled =
+    state.money < machineCost();
+
+
+  buyRobot.disabled =
+    state.money < robotCost();
+
+
+  buySpeed.disabled =
+    state.money < speedCost();
+
+
+  buyExpansion.disabled =
+    state.money < expansionCost();
+
+
+  updateMessage();
+
+}
+
+
+/* ---------- MACHINE ---------- */
+
+buyMachine.addEventListener(
+  "click",
+  () => {
+
+    const cost =
+      machineCost();
+
+
+    if (state.money < cost) {
+      return;
+    }
+
+
+    state.money -= cost;
+
+    state.machines++;
+
+
+    save();
+    render();
+
+  }
+);
+
+
+/* ---------- ROBOT ---------- */
+
+buyRobot.addEventListener(
+  "click",
+  () => {
+
+    const cost =
+      robotCost();
+
+
+    if (state.money < cost) {
+      return;
+    }
+
+
+    state.money -= cost;
+
+    state.robots++;
+
+
+    save();
+    render();
+
+  }
+);
+
+
+/* ---------- FASTER LINE ---------- */
+
+buySpeed.addEventListener(
+  "click",
+  () => {
+
+    const cost =
+      speedCost();
+
+
+    if (state.money < cost) {
+      return;
+    }
+
+
+    state.money -= cost;
+
+    state.speed++;
+
+
+    save();
+    render();
+
+  }
+);
+
+
+/* ---------- EXPANSION ---------- */
+
+buyExpansion.addEventListener(
+  "click",
+  () => {
+
+    const cost =
+      expansionCost();
+
+
+    if (state.money < cost) {
+      return;
+    }
+
+
+    state.money -= cost;
+
+    state.expansion++;
+
+
+    save();
+    render();
+
+  }
+);
+
+
+/* ---------- MESSAGE ---------- */
+
+function updateMessage() {
+
+  const produced =
+    state.totalProduced;
+
+
+  if (produced >= 100000) {
+
+    message.textContent =
+      "The tiny factory has become an industrial empire.";
+
+  }
+
+  else if (produced >= 25000) {
+
+    message.textContent =
+      "Production is running at full speed.";
+
+  }
+
+  else if (produced >= 5000) {
+
+    message.textContent =
+      "The factory is really starting to hum.";
+
+  }
+
+  else if (produced >= 1000) {
+
+    message.textContent =
+      "The production line is running smoothly.";
+
+  }
+
+  else if (
+    state.machines +
+    state.robots > 0
+  ) {
+
+    message.textContent =
+      "The machines are doing the work.";
+
+  }
+
+  else {
+
+    message.textContent =
+      "The factory is waiting to start.";
+
+  }
+
+}
+
+
+/* ---------- AUTOMATIC PRODUCTION ---------- */
+
+setInterval(
+  () => {
+
+    const production =
+      productionPerSecond();
+
+
+    if (production <= 0) {
+      return;
+    }
+
+
+    state.money +=
+      production;
+
+
+    state.totalProduced +=
+      production;
+
+
+    render();
+
+  },
+  1000
+);
+
+
+/* ---------- SAVE ---------- */
+
+function save() {
+
+  localStorage.setItem(
+    SAVE_KEY,
+    JSON.stringify(state)
+  );
+
+}
+
+
+function load() {
+
+  try {
+
+    const saved =
+      localStorage.getItem(
+        SAVE_KEY
+      );
+
+
+    if (!saved) {
+      return;
+    }
+
+
+    const parsed =
+      JSON.parse(saved);
+
+
+    state = {
+      ...state,
+      ...parsed
+    };
+
+  }
+
+  catch {
+
+    console.warn(
+      "Could not load factory save."
+    );
+
+  }
+
+}
+
+
+/* ---------- SAVE BUTTON ---------- */
+
+document
+  .getElementById("saveButton")
+  .addEventListener(
+    "click",
+    () => {
+
+      save();
+
+
+      const button =
+        document.getElementById(
+          "saveButton"
+        );
+
+
+      button.textContent =
+        "SAVED";
+
+
+      setTimeout(
+        () => {
+
+          button.textContent =
+            "SAVE";
+
+        },
+        700
+      );
+
+    }
+  );
+
+
+/* ---------- RESET ---------- */
+
+function resetGame() {
+
+  if (
+    !confirm(
+      "Start a new factory?"
+    )
+  ) {
+    return;
+  }
+
+
+  localStorage.removeItem(
+    SAVE_KEY
+  );
+
+
+  state = {
+
+    money: 50,
+
+    machines: 0,
+    robots: 0,
+
+    speed: 0,
+
+    expansion: 1,
+
+    totalProduced: 0
+
+  };
+
+
+  render();
+
+}
+
+
+document
+  .getElementById("resetButton")
+  .addEventListener(
+    "click",
+    resetGame
+  );
+
+
+/* ---------- R TO RESTART ---------- */
+
+document.addEventListener(
+  "keydown",
+  event => {
+
+    if (
+      event.target.tagName === "INPUT" ||
+      event.target.tagName === "TEXTAREA"
+    ) {
+      return;
+    }
+
+
+    if (
+      event.key.toLowerCase() === "r"
+    ) {
+
+      resetGame();
+
+    }
+
+  }
+);
+
+
+/* ---------- START ---------- */
+
+load();
+render();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TINY GARDEN</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --black: #111;
+  --white: #fff;
+  --gray: #888;
+  --light: #eee;
+  --green: #2f8f46;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--white);
+  color: var(--black);
+  font-family: Arial, Helvetica, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.game {
+  width: min(92vw, 620px);
+  padding: 24px 0;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  margin-bottom: 14px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 24px;
+  letter-spacing: .08em;
+}
+
+.money {
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+.money span {
+  font-weight: bold;
+}
+
+/* GARDEN */
+
+.garden {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1.55 / 1;
+  border: 2px solid var(--black);
+  overflow: hidden;
+  background:
+    linear-gradient(
+      to bottom,
+      #fff 0%,
+      #fff 63%,
+      #f3f3f3 63%,
+      #f3f3f3 100%
+    );
+}
+
+.sky-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 63%;
+  border-top: 1px solid #ccc;
+}
+
+.ground {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 37%;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 22px,
+      rgba(0,0,0,.025) 22px 23px
+    ),
+    #f3f3f3;
+}
+
+/* SUN */
+
+.sun {
+  position: absolute;
+  top: 25px;
+  right: 30px;
+  width: 38px;
+  height: 38px;
+  border: 2px solid var(--black);
+  border-radius: 50%;
+}
+
+/* CLOUDS */
+
+.cloud {
+  position: absolute;
+  width: 50px;
+  height: 12px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+}
+
+.cloud::before,
+.cloud::after {
+  content: "";
+  position: absolute;
+  border: 1px solid #ccc;
+  border-bottom: 0;
+  border-radius: 50% 50% 0 0;
+}
+
+.cloud::before {
+  width: 17px;
+  height: 12px;
+  left: 9px;
+  top: -9px;
+}
+
+.cloud::after {
+  width: 12px;
+  height: 9px;
+  left: 24px;
+  top: -6px;
+}
+
+/* PLANTS */
+
+.plant {
+  position: absolute;
+  bottom: 28%;
+  width: 4px;
+  background: var(--black);
+  transform-origin: bottom;
+  animation: sway 3s ease-in-out infinite;
+}
+
+.plant::before,
+.plant::after {
+  content: "";
+  position: absolute;
+  width: 25px;
+  height: 8px;
+  border: 2px solid var(--black);
+  border-radius: 100% 0;
+  background: white;
+}
+
+.plant::before {
+  left: -21px;
+  top: 25%;
+  transform: rotate(-25deg);
+}
+
+.plant::after {
+  left: 1px;
+  top: 50%;
+  transform: rotate(25deg) scaleX(-1);
+}
+
+@keyframes sway {
+  0%, 100% {
+    transform: rotate(-2deg);
+  }
+
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+/* FLOWERS */
+
+.flower {
+  position: absolute;
+  bottom: 28%;
+  width: 20px;
+  height: 20px;
+}
+
+.flower-stem {
+  position: absolute;
+  left: 9px;
+  top: 10px;
+  width: 3px;
+  height: 30px;
+  background: var(--black);
+}
+
+.flower-head {
+  position: absolute;
+  left: 2px;
+  top: 0;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--black);
+  border-radius: 50%;
+  background: white;
+}
+
+.flower-center {
+  position: absolute;
+  left: 7px;
+  top: 5px;
+  width: 6px;
+  height: 6px;
+  background: var(--black);
+  border-radius: 50%;
+}
+
+/* BUTTERFLIES */
+
+.butterfly {
+  position: absolute;
+  width: 18px;
+  height: 14px;
+  animation: fly 7s linear infinite;
+}
+
+.butterfly::before,
+.butterfly::after {
+  content: "";
+  position: absolute;
+  width: 9px;
+  height: 11px;
+  border: 1px solid var(--black);
+  border-radius: 70% 30%;
+}
+
+.butterfly::before {
+  left: 0;
+  transform: rotate(25deg);
+}
+
+.butterfly::after {
+  right: 0;
+  transform: rotate(-25deg) scaleX(-1);
+}
+
+@keyframes fly {
+  0% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(70px, -20px);
+  }
+
+  100% {
+    transform: translate(140px, 0);
+  }
+}
+
+/* STATS */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 2px solid var(--black);
+  border-top: 0;
+}
+
+.stat {
+  padding: 10px;
+  border-right: 1px solid var(--black);
+}
+
+.stat:last-child {
+  border-right: 0;
+}
+
+.stat-label {
+  font-size: 10px;
+  color: var(--gray);
+  letter-spacing: .08em;
+}
+
+.stat-value {
+  margin-top: 3px;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* SHOP */
+
+.section-title {
+  margin: 22px 0 8px;
+  font-size: 10px;
+  color: var(--gray);
+  letter-spacing: .1em;
+}
+
+.shop {
+  display: grid;
+  gap: 7px;
+}
+
+button {
+  font: inherit;
+  color: var(--black);
+  background: white;
+  border: 1px solid var(--black);
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  background: var(--black);
+  color: white;
+}
+
+button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+button:disabled {
+  color: #aaa;
+  border-color: #ccc;
+  cursor: not-allowed;
+}
+
+.shop-item {
+  width: 100%;
+  min-height: 58px;
+  padding: 9px 11px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  text-align: left;
+  align-items: center;
+}
+
+.item-name {
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: .04em;
+}
+
+.item-description {
+  margin-top: 3px;
+  font-size: 11px;
+  color: var(--gray);
+}
+
+.item-price {
+  text-align: right;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.item-owned {
+  margin-top: 3px;
+  font-size: 10px;
+  color: var(--gray);
+}
+
+.message {
+  margin-top: 16px;
+  padding: 11px;
+  border: 1px solid #ccc;
+  text-align: center;
+  font-size: 11px;
+  color: var(--gray);
+}
+
+.controls {
+  display: flex;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.controls button {
+  flex: 1;
+  padding: 10px;
+  font-size: 10px;
+  letter-spacing: .08em;
+}
+
+.hint {
+  margin-top: 12px;
+  text-align: center;
+  font-size: 10px;
+  color: #999;
+}
+
+@media (max-width: 480px) {
+  .game {
+    width: 94vw;
+  }
+
+  h1 {
+    font-size: 20px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<main class="game">
+
+  <header>
+    <h1>TINY GARDEN</h1>
+
+    <div class="money">
+      ◉ <span id="money">50</span>
+    </div>
+  </header>
+
+  <section class="garden" id="garden">
+
+    <div class="sun"></div>
+
+    <div class="cloud" style="left:15%; top:22%;"></div>
+    <div class="cloud" style="left:42%; top:13%; transform:scale(.7);"></div>
+
+    <div class="sky-line"></div>
+    <div class="ground"></div>
+
+    <!-- Starting plants -->
+    <div class="plant" style="left:18%; height:45px;"></div>
+    <div class="plant" style="left:24%; height:34px; transform:scale(.8);"></div>
+
+    <div class="flower" style="left:45%;">
+      <div class="flower-stem"></div>
+      <div class="flower-head"></div>
+      <div class="flower-center"></div>
+    </div>
+
+    <div class="flower" style="left:72%; transform:scale(.8);">
+      <div class="flower-stem"></div>
+      <div class="flower-head"></div>
+      <div class="flower-center"></div>
+    </div>
+
+    <div class="butterfly" style="left:20%; top:30%;"></div>
+
+    <div id="gardenPlants"></div>
+
+  </section>
+
+  <section class="stats">
+
+    <div class="stat">
+      <div class="stat-label">PLANTS</div>
+      <div class="stat-value">
+        <span id="plantCount">0</span>
+      </div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-label">GROWTH</div>
+      <div class="stat-value">
+        +<span id="growth">0</span>/s
+      </div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-label">GARDEN</div>
+      <div class="stat-value">
+        LV <span id="level">1</span>
+      </div>
+    </div>
+
+  </section>
+
+  <div class="section-title">GROW</div>
+
+  <section class="shop">
+
+    <button class="shop-item" id="buySeed">
+
+      <div>
+        <div class="item-name">SEED</div>
+
+        <div class="item-description">
+          A little plant that grows forever.
+        </div>
+      </div>
+
+      <div class="item-price">
+        ◉ <span id="seedCost">25</span>
+
+        <div class="item-owned">
+          OWNED <span id="seedOwned">0</span>
+        </div>
+      </div>
+
+    </button>
+
+
+    <button class="shop-item" id="buyFlower">
+
+      <div>
+        <div class="item-name">FLOWER</div>
+
+        <div class="item-description">
+          Blooms beautifully and grows faster.
+        </div>
+      </div>
+
+      <div class="item-price">
+        ◉ <span id="flowerCost">100</span>
+
+        <div class="item-owned">
+          OWNED <span id="flowerOwned">0</span>
+        </div>
+      </div>
+
+    </button>
+
+
+    <button class="shop-item" id="buyWater">
+
+      <div>
+        <div class="item-name">WATERING SYSTEM</div>
+
+        <div class="item-description">
+          Automatically improves garden growth.
+        </div>
+      </div>
+
+      <div class="item-price">
+        ◉ <span id="waterCost">150</span>
+
+        <div class="item-owned">
+          LEVEL <span id="waterOwned">0</span>
+        </div>
+      </div>
+
+    </button>
+
+
+    <button class="shop-item" id="buyExpansion">
+
+      <div>
+        <div class="item-name">GARDEN EXPANSION</div>
+
+        <div class="item-description">
+          More room for plants.
+        </div>
+      </div>
+
+      <div class="item-price">
+        ◉ <span id="expansionCost">300</span>
+
+        <div class="item-owned">
+          CAPACITY +5
+        </div>
+      </div>
+
+    </button>
+
+  </section>
+
+  <div class="message" id="message">
+    Plant your first seed.
+  </div>
+
+  <div class="controls">
+
+    <button id="saveButton">
+      SAVE
+    </button>
+
+    <button id="resetButton">
+      NEW GARDEN
+    </button>
+
+  </div>
+
+  <div class="hint">
+    Plants grow automatically · R to restart
+  </div>
+
+</main>
+
+
+<script>
+
+/*
+  TINY GARDEN
+
+  The goal is to make an incremental game
+  that does NOT require constant clicking.
+
+  You make occasional purchases,
+  then watch the garden grow.
+*/
+
+
+const SAVE_KEY = "tinyGardenSave";
+
+
+let state = {
+
+  /*
+    Starting money means the player
+    can immediately start playing.
+  */
+
+  money: 50,
+
+  seeds: 0,
+  flowers: 0,
+  watering: 0,
+
+  gardenLevel: 1,
+
+  totalGrowth: 0
+
+};
+
+
+/* ---------- ELEMENTS ---------- */
+
+const moneyEl =
+  document.getElementById("money");
+
+const plantCountEl =
+  document.getElementById("plantCount");
+
+const growthEl =
+  document.getElementById("growth");
+
+const levelEl =
+  document.getElementById("level");
+
+const seedCostEl =
+  document.getElementById("seedCost");
+
+const flowerCostEl =
+  document.getElementById("flowerCost");
+
+const waterCostEl =
+  document.getElementById("waterCost");
+
+const expansionCostEl =
+  document.getElementById("expansionCost");
+
+const seedOwnedEl =
+  document.getElementById("seedOwned");
+
+const flowerOwnedEl =
+  document.getElementById("flowerOwned");
+
+const waterOwnedEl =
+  document.getElementById("waterOwned");
+
+const buySeed =
+  document.getElementById("buySeed");
+
+const buyFlower =
+  document.getElementById("buyFlower");
+
+const buyWater =
+  document.getElementById("buyWater");
+
+const buyExpansion =
+  document.getElementById("buyExpansion");
+
+const garden =
+  document.getElementById("garden");
+
+const gardenPlants =
+  document.getElementById("gardenPlants");
+
+const message =
+  document.getElementById("message");
+
+
+/* ---------- ECONOMY ---------- */
+
+
+function seedCost() {
+
+  return Math.floor(
+    25 * Math.pow(1.18, state.seeds)
+  );
+
+}
+
+
+function flowerCost() {
+
+  return Math.floor(
+    100 * Math.pow(1.22, state.flowers)
+  );
+
+}
+
+
+function waterCost() {
+
+  return Math.floor(
+    150 * Math.pow(1.35, state.watering)
+  );
+
+}
+
+
+function expansionCost() {
+
+  return Math.floor(
+    300 * Math.pow(
+      1.8,
+      state.gardenLevel - 1
+    )
+  );
+
+}
+
+
+/*
+  Starting capacity is 5.
+  Each expansion adds another 5.
+*/
+
+function capacity() {
+
+  return 5 +
+    (state.gardenLevel - 1) * 5;
+
+}
+
+
+/*
+  Seeds provide +1 growth/sec.
+
+  Flowers provide +5.
+
+  Watering systems multiply the
+  total growth rather than generating
+  their own resource.
+*/
+
+function growthPerSecond() {
+
+  const base =
+    state.seeds * 1 +
+    state.flowers * 5;
+
+  const multiplier =
+    1 + state.watering * 0.25;
+
+  return base * multiplier;
+
+}
+
+
+function plantCount() {
+
+  return state.seeds +
+    state.flowers;
+
+}
+
+
+/* ---------- NUMBER FORMAT ---------- */
+
+
+function formatNumber(value) {
+
+  if (value < 1000) {
+    return Math.floor(value);
+  }
+
+  if (value < 1000000) {
+    return (
+      value / 1000
+    ).toFixed(1) + "K";
+  }
+
+  if (value < 1000000000) {
+    return (
+      value / 1000000
+    ).toFixed(1) + "M";
+  }
+
+  return (
+    value / 1000000000
+  ).toFixed(1) + "B";
+
+}
+
+
+/* ---------- RENDER ---------- */
+
+
+function render() {
+
+  moneyEl.textContent =
+    formatNumber(state.money);
+
+
+  plantCountEl.textContent =
+    `${plantCount()} / ${capacity()}`;
+
+
+  growthEl.textContent =
+    formatNumber(growthPerSecond());
+
+
+  levelEl.textContent =
+    state.gardenLevel;
+
+
+  seedCostEl.textContent =
+    formatNumber(seedCost());
+
+
+  flowerCostEl.textContent =
+    formatNumber(flowerCost());
+
+
+  waterCostEl.textContent =
+    formatNumber(waterCost());
+
+
+  expansionCostEl.textContent =
+    formatNumber(expansionCost());
+
+
+  seedOwnedEl.textContent =
+    state.seeds;
+
+
+  flowerOwnedEl.textContent =
+    state.flowers;
+
+
+  waterOwnedEl.textContent =
+    state.watering;
+
+
+  buySeed.disabled =
+    state.money < seedCost() ||
+    plantCount() >= capacity();
+
+
+  buyFlower.disabled =
+    state.money < flowerCost() ||
+    plantCount() >= capacity();
+
+
+  buyWater.disabled =
+    state.money < waterCost();
+
+
+  buyExpansion.disabled =
+    state.money < expansionCost();
+
+
+  updateMessage();
+
+}
+
+
+/* ---------- BUY SEED ---------- */
+
+
+buySeed.addEventListener(
+  "click",
+  () => {
+
+    const cost =
+      seedCost();
+
+
+    if (state.money < cost) {
+      return;
+    }
+
+
+    if (plantCount() >= capacity()) {
+      return;
+    }
+
+
+    state.money -= cost;
+
+    state.seeds++;
+
+
+    createPlant("seed");
+
+
+    save();
+    render();
+
+  }
+);
+
+
+/* ---------- BUY FLOWER ---------- */
+
+
+buyFlower.addEventListener(
+  "click",
+  () => {
+
+    const cost =
+      flowerCost();
+
+
+    if (state.money < cost) {
+      return;
+    }
+
+
+    if (plantCount() >= capacity()) {
+      return;
+    }
+
+
+    state.money -= cost;
+
+    state.flowers++;
+
+
+    createFlower();
+
+
+    save();
+    render();
+
+  }
+);
+
+
+/* ---------- WATERING ---------- */
+
+
+buyWater.addEventListener(
+  "click",
+  () => {
+
+    const cost =
+      waterCost();
+
+
+    if (state.money < cost) {
+      return;
+    }
+
+
+    state.money -= cost;
+
+    state.watering++;
+
+
+    save();
+    render();
+
+  }
+);
+
+
+/* ---------- EXPANSION ---------- */
+
+
+buyExpansion.addEventListener(
+  "click",
+  () => {
+
+    const cost =
+      expansionCost();
+
+
+    if (state.money < cost) {
+      return;
+    }
+
+
+    state.money -= cost;
+
+    state.gardenLevel++;
+
+
+    save();
+    render();
+
+  }
+);
+
+
+/* ---------- VISUAL PLANTS ---------- */
+
+
+function createPlant(type) {
+
+  const plant =
+    document.createElement("div");
+
+
+  plant.className =
+    "plant";
+
+
+  plant.style.left =
+    (8 + Math.random() * 84) +
+    "%";
+
+
+  plant.style.height =
+    (25 + Math.random() * 35) +
+    "px";
+
+
+  plant.style.animationDelay =
+    (-Math.random() * 3) +
+    "s";
+
+
+  gardenPlants.appendChild(plant);
+
+}
+
+
+/* ---------- FLOWERS ---------- */
+
+
+function createFlower() {
+
+  const flower =
+    document.createElement("div");
+
+
+  flower.className =
+    "flower";
+
+
+  flower.style.left =
+    (8 + Math.random() * 84) +
+    "%";
+
+
+  flower.style.transform =
+    `scale(${0.7 + Math.random() * .5})`;
+
+
+  flower.innerHTML = `
+
+    <div class="flower-stem"></div>
+
+    <div class="flower-head"></div>
+
+    <div class="flower-center"></div>
+
+  `;
+
+
+  gardenPlants.appendChild(flower);
+
+}
+
+
+/* ---------- MESSAGES ---------- */
+
+
+function updateMessage() {
+
+  const growth =
+    state.totalGrowth;
+
+
+  if (growth >= 100000) {
+
+    message.textContent =
+      "You have created a tiny ecosystem.";
+
+  }
+
+  else if (growth >= 25000) {
+
+    message.textContent =
+      "The garden is flourishing.";
+
+  }
+
+  else if (growth >= 5000) {
+
+    message.textContent =
+      "Your little garden is becoming a forest.";
+
+  }
+
+  else if (growth >= 1000) {
+
+    message.textContent =
+      "Everything is starting to grow.";
+
+  }
+
+  else if (plantCount() >= capacity()) {
+
+    message.textContent =
+      "The garden is full. Give it more room.";
+
+  }
+
+  else if (plantCount() > 0) {
+
+    message.textContent =
+      "Your plants are quietly growing.";
+
+  }
+
+  else {
+
+    message.textContent =
+      "Plant your first seed.";
+
+  }
+
+}
+
+
+/* ---------- AUTOMATIC GROWTH ---------- */
+
+
+setInterval(
+  () => {
+
+    const growth =
+      growthPerSecond();
+
+
+    if (growth <= 0) {
+      return;
+    }
+
+
+    /*
+      Growth becomes currency.
+
+      This means the garden continually
+      produces value without requiring
+      repeated clicks.
+    */
+
+    state.money += growth;
+
+    state.totalGrowth += growth;
+
+
+    render();
+
+  },
+  1000
+);
+
+
+/* ---------- SAVE ---------- */
+
+
+function save() {
+
+  localStorage.setItem(
+    SAVE_KEY,
+    JSON.stringify(state)
+  );
+
+}
+
+
+function load() {
+
+  try {
+
+    const saved =
+      localStorage.getItem(SAVE_KEY);
+
+
+    if (!saved) {
+      return;
+    }
+
+
+    const parsed =
+      JSON.parse(saved);
+
+
+    state = {
+      ...state,
+      ...parsed
+    };
+
+  }
+
+  catch {
+
+    console.warn(
+      "Could not load garden save."
+    );
+
+  }
+
+}
+
+
+/* ---------- SAVE BUTTON ---------- */
+
+
+document
+  .getElementById("saveButton")
+  .addEventListener(
+    "click",
+    () => {
+
+      save();
+
+
+      const button =
+        document.getElementById(
+          "saveButton"
+        );
+
+
+      button.textContent =
+        "SAVED";
+
+
+      setTimeout(
+        () => {
+
+          button.textContent =
+            "SAVE";
+
+        },
+        700
+      );
+
+    }
+  );
+
+
+/* ---------- RESET ---------- */
+
+
+function resetGame() {
+
+  if (
+    !confirm(
+      "Start a new garden?"
+    )
+  ) {
+    return;
+  }
+
+
+  localStorage.removeItem(
+    SAVE_KEY
+  );
+
+
+  state = {
+
+    money: 50,
+
+    seeds: 0,
+    flowers: 0,
+    watering: 0,
+
+    gardenLevel: 1,
+
+    totalGrowth: 0
+
+  };
+
+
+  gardenPlants.innerHTML =
+    "";
+
+
+  render();
+
+}
+
+
+document
+  .getElementById("resetButton")
+  .addEventListener(
+    "click",
+    resetGame
+  );
+
+
+/* ---------- R TO RESTART ---------- */
+
+
+document.addEventListener(
+  "keydown",
+  event => {
+
+    if (
+      event.target.tagName === "INPUT" ||
+      event.target.tagName === "TEXTAREA"
+    ) {
+      return;
+    }
+
+
+    if (
+      event.key.toLowerCase() === "r"
+    ) {
+
+      resetGame();
+
+    }
+
+  }
+);
+
+
+/* ---------- INITIALIZE ---------- */
+
+
+load();
+
+render();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MINES</title>
+
+  <style>
+    :root {
+      --background: #f5f5f5;
+      --foreground: #111;
+      --muted: #777;
+      --cell: #fff;
+      --revealed: #e9e9e9;
+      --border: #111;
+      --success: #2f8f46;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+
+      background: var(--background);
+      color: var(--foreground);
+
+      font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    }
+
+    .game {
+      width: min(92vw, 520px);
+      text-align: center;
+    }
+
+    /* ==============================
+       HEADER
+    ============================== */
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+
+      font-size: 22px;
+      line-height: 1;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+    }
+
+    .counter {
+      min-width: 54px;
+
+      font-family: monospace;
+      font-size: 15px;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    /* ==============================
+       BOARD
+    ============================== */
+
+    .board {
+      display: grid;
+
+      grid-template-columns:
+        repeat(10, minmax(0, 1fr));
+
+      grid-template-rows:
+        repeat(10, minmax(0, 1fr));
+
+      width: 100%;
+      aspect-ratio: 1 / 1;
+
+      gap: 1px;
+      padding: 0;
+
+      background: var(--border);
+      border: 2px solid var(--border);
+
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* ==============================
+       CELL
+    ============================== */
+
+    .cell {
+      width: 100%;
+      height: 100%;
+
+      min-width: 0;
+      min-height: 0;
+
+      margin: 0;
+      padding: 0;
+
+      border: 0;
+      border-radius: 0;
+
+      background: var(--cell);
+      color: var(--foreground);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      overflow: hidden;
+
+      font-family: inherit;
+      font-size: clamp(11px, 3.5vw, 18px);
+      font-weight: 800;
+      line-height: 1;
+
+      cursor: pointer;
+
+      transition:
+        background 100ms ease,
+        transform 100ms ease;
+    }
+
+    .cell:hover:not(.revealed) {
+      background: #ededed;
+    }
+
+    .cell:active:not(.revealed) {
+      transform: scale(0.94);
+    }
+
+    .cell.revealed {
+      background: var(--revealed);
+      cursor: default;
+    }
+
+    .cell.flagged {
+      font-size: clamp(12px, 3.2vw, 17px);
+    }
+
+    /* Unflagged mine revealed after losing */
+    .cell.mine {
+      background: #111;
+      color: #fff;
+    }
+
+    /* Correctly flagged mine after game over */
+    .cell.correct-flag {
+      background: var(--success);
+      color: #fff;
+    }
+
+    /* Incorrect flag */
+    .cell.wrong-flag {
+      background: #888;
+      color: #fff;
+    }
+
+    /* ==============================
+       NUMBERS
+    ============================== */
+
+    .number-1 {
+      color: #111;
+    }
+
+    .number-2 {
+      color: #444;
+    }
+
+    .number-3 {
+      color: #666;
+    }
+
+    .number-4,
+    .number-5,
+    .number-6,
+    .number-7,
+    .number-8 {
+      color: #000;
+    }
+
+    /* ==============================
+       STATUS
+    ============================== */
+
+    .status {
+      height: 24px;
+
+      margin-top: 15px;
+
+      color: var(--muted);
+
+      font-size: 13px;
+      line-height: 24px;
+
+      letter-spacing: 0.03em;
+    }
+
+    /* ==============================
+       NEW GAME
+    ============================== */
+
+    .restart {
+      margin-top: 12px;
+
+      padding: 9px 18px;
+
+      border: 1px solid var(--foreground);
+
+      background: transparent;
+      color: var(--foreground);
+
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+
+      letter-spacing: 0.08em;
+
+      cursor: pointer;
+
+      transition:
+        background 120ms ease,
+        color 120ms ease;
+    }
+
+    .restart:hover {
+      background: var(--foreground);
+      color: var(--background);
+    }
+
+    /* ==============================
+       HINT
+    ============================== */
+
+    .hint {
+      margin-top: 13px;
+
+      color: var(--muted);
+
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    /* ==============================
+       MOBILE
+    ============================== */
+
+    @media (max-width: 420px) {
+      .game {
+        width: 94vw;
+      }
+
+      h1 {
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+
+
+<body>
+
+  <main class="game">
+
+    <header>
+      <h1>MINES</h1>
+
+      <div
+        class="counter"
+        id="counter"
+        aria-label="Mines remaining"
+      >
+        010
+      </div>
+    </header>
+
+
+    <div
+      class="board"
+      id="board"
+      aria-label="Minesweeper game board"
+    ></div>
+
+
+    <div
+      class="status"
+      id="status"
+      aria-live="polite"
+    >
+      Make your first move.
+    </div>
+
+
+    <button
+      class="restart"
+      id="restart"
+      type="button"
+    >
+      NEW GAME
+    </button>
+
+
+    <div class="hint">
+      Left click to reveal · Right click to flag · R to restart
+    </div>
+
+  </main>
+
+
+  <script>
+    /* ==========================================
+       SETTINGS
+    ========================================== */
+
+    const SIZE = 10;
+    const MINES = 10;
+
+
+    /* ==========================================
+       DOM
+    ========================================== */
+
+    const boardElement =
+      document.getElementById("board");
+
+    const counterElement =
+      document.getElementById("counter");
+
+    const statusElement =
+      document.getElementById("status");
+
+    const restartButton =
+      document.getElementById("restart");
+
+
+    /* ==========================================
+       GAME STATE
+    ========================================== */
+
+    let board = [];
+
+    let gameOver = false;
+
+    let flags = 0;
+
+    let revealed = 0;
+
+    let firstClick = true;
+
+
+    /* ==========================================
+       CREATE GAME
+    ========================================== */
+
+    function createGame() {
+
+      board = [];
+
+      gameOver = false;
+
+      flags = 0;
+
+      revealed = 0;
+
+      firstClick = true;
+
+
+      statusElement.textContent =
+        "Make your first move.";
+
+
+      updateCounter();
+
+
+      /*
+        Create empty board.
+      */
+
+      for (let row = 0; row < SIZE; row++) {
+
+        board[row] = [];
+
+        for (let col = 0; col < SIZE; col++) {
+
+          board[row][col] = {
+
+            mine: false,
+
+            revealed: false,
+
+            flagged: false,
+
+            adjacent: 0
+
+          };
+        }
+      }
+
+
+      render();
+    }
+
+
+    /* ==========================================
+       PLACE MINES
+    ========================================== */
+
+    function placeMines(safeRow, safeCol) {
+
+      let placed = 0;
+
+
+      while (placed < MINES) {
+
+        const row =
+          Math.floor(Math.random() * SIZE);
+
+        const col =
+          Math.floor(Math.random() * SIZE);
+
+
+        /*
+          The first clicked cell can
+          never be a mine.
+        */
+
+        if (
+          row === safeRow &&
+          col === safeCol
+        ) {
+          continue;
+        }
+
+
+        if (!board[row][col].mine) {
+
+          board[row][col].mine = true;
+
+          placed++;
+        }
+      }
+
+
+      calculateNumbers();
+    }
+
+
+    /* ==========================================
+       CALCULATE NUMBERS
+    ========================================== */
+
+    function calculateNumbers() {
+
+      for (let row = 0; row < SIZE; row++) {
+
+        for (let col = 0; col < SIZE; col++) {
+
+          if (!board[row][col].mine) {
+
+            board[row][col].adjacent =
+              countAdjacentMines(row, col);
+          }
+        }
+      }
+    }
+
+
+    /* ==========================================
+       COUNT ADJACENT MINES
+    ========================================== */
+
+    function countAdjacentMines(row, col) {
+
+      let count = 0;
+
+
+      for (let dr = -1; dr <= 1; dr++) {
+
+        for (let dc = -1; dc <= 1; dc++) {
+
+          if (
+            dr === 0 &&
+            dc === 0
+          ) {
+            continue;
+          }
+
+
+          const r = row + dr;
+
+          const c = col + dc;
+
+
+          if (
+            isInside(r, c) &&
+            board[r][c].mine
+          ) {
+
+            count++;
+          }
+        }
+      }
+
+
+      return count;
+    }
+
+
+    /* ==========================================
+       BOARD BOUNDS
+    ========================================== */
+
+    function isInside(row, col) {
+
+      return (
+        row >= 0 &&
+        row < SIZE &&
+        col >= 0 &&
+        col < SIZE
+      );
+    }
+
+
+    /* ==========================================
+       RENDER
+    ========================================== */
+
+    function render() {
+
+      boardElement.innerHTML = "";
+
+
+      for (let row = 0; row < SIZE; row++) {
+
+        for (let col = 0; col < SIZE; col++) {
+
+          const cell =
+            board[row][col];
+
+
+          const element =
+            document.createElement("button");
+
+
+          element.type = "button";
+
+          element.className = "cell";
+
+
+          element.setAttribute(
+            "aria-label",
+            `Row ${row + 1}, Column ${col + 1}`
+          );
+
+
+          /* ==============================
+             GAME OVER DISPLAY
+          ============================== */
+
+          if (gameOver) {
+
+            /*
+              Correctly flagged mine
+              gets green.
+            */
+
+            if (
+              cell.mine &&
+              cell.flagged
+            ) {
+
+              element.classList.add(
+                "correct-flag"
+              );
+
+              element.textContent = "⚑";
+            }
+
+
+            /*
+              Incorrect flag.
+
+              The player flagged a cell
+              that wasn't a mine.
+            */
+
+            else if (
+              !cell.mine &&
+              cell.flagged
+            ) {
+
+              element.classList.add(
+                "wrong-flag"
+              );
+
+              element.textContent = "⚑";
+            }
+
+
+            /*
+              Unflagged mine gets black.
+            */
+
+            else if (cell.mine) {
+
+              element.classList.add(
+                "mine"
+              );
+
+              element.textContent = "×";
+            }
+
+
+            /*
+              Normal revealed cell.
+            */
+
+            else if (cell.revealed) {
+
+              element.classList.add(
+                "revealed"
+              );
+
+
+              if (cell.adjacent > 0) {
+
+                element.classList.add(
+                  `number-${cell.adjacent}`
+                );
+
+                element.textContent =
+                  cell.adjacent;
+              }
+            }
+
+
+            /*
+              Unrevealed empty cell.
+            */
+
+          }
+
+
+          /* ==============================
+             NORMAL GAME
+          ============================== */
+
+          else {
+
+            /*
+              Revealed cell.
+            */
+
+            if (cell.revealed) {
+
+              element.classList.add(
+                "revealed"
+              );
+
+
+              if (cell.mine) {
+
+                element.classList.add(
+                  "mine"
+                );
+
+                element.textContent = "×";
+              }
+
+              else if (cell.adjacent > 0) {
+
+                element.classList.add(
+                  `number-${cell.adjacent}`
+                );
+
+                element.textContent =
+                  cell.adjacent;
+              }
+            }
+
+
+            /*
+              Flagged cell.
+            */
+
+            else if (cell.flagged) {
+
+              element.classList.add(
+                "flagged"
+              );
+
+              element.textContent = "⚑";
+            }
+          }
+
+
+          /* ==============================
+             LEFT CLICK
+          ============================== */
+
+          element.addEventListener(
+            "click",
+            () => reveal(row, col)
+          );
+
+
+          /* ==============================
+             RIGHT CLICK
+          ============================== */
+
+          element.addEventListener(
+            "contextmenu",
+            (event) => {
+
+              event.preventDefault();
+
+              toggleFlag(row, col);
+            }
+          );
+
+
+          boardElement.appendChild(element);
+        }
+      }
+    }
+
+
+    /* ==========================================
+       REVEAL
+    ========================================== */
+
+    function reveal(row, col) {
+
+      if (gameOver) {
+        return;
+      }
+
+
+      const cell =
+        board[row][col];
+
+
+      if (
+        cell.revealed ||
+        cell.flagged
+      ) {
+        return;
+      }
+
+
+      /*
+        First click is always safe.
+      */
+
+      if (firstClick) {
+
+        placeMines(row, col);
+
+        firstClick = false;
+
+        statusElement.textContent =
+          "Clear the field.";
+      }
+
+
+      /* ========================================
+         MINE HIT
+      ======================================== */
+
+      if (cell.mine) {
+
+        cell.revealed = true;
+
+        gameOver = true;
+
+        revealAllMines();
+
+        statusElement.textContent =
+          "Game over.";
+
+        render();
+
+        return;
+      }
+
+
+      /* ========================================
+         NORMAL REVEAL
+      ======================================== */
+
+      floodReveal(row, col);
+
+
+      /* ========================================
+         WIN
+      ======================================== */
+
+      if (hasWon()) {
+
+        gameOver = true;
+
+
+        /*
+          Automatically flag all mines.
+        */
+
+        for (let r = 0; r < SIZE; r++) {
+
+          for (let c = 0; c < SIZE; c++) {
+
+            if (board[r][c].mine) {
+
+              board[r][c].flagged = true;
+            }
+          }
+        }
+
+
+        flags = MINES;
+
+
+        statusElement.textContent =
+          "Field cleared.";
+
+
+        updateCounter();
+      }
+
+
+      render();
+    }
+
+
+    /* ==========================================
+       FLOOD REVEAL
+    ========================================== */
+
+    function floodReveal(
+      startRow,
+      startCol
+    ) {
+
+      const queue = [
+        [startRow, startCol]
+      ];
+
+
+      while (queue.length > 0) {
+
+        const [
+          row,
+          col
+        ] = queue.shift();
+
+
+        const cell =
+          board[row][col];
+
+
+        if (
+          cell.revealed ||
+          cell.flagged ||
+          cell.mine
+        ) {
+          continue;
+        }
+
+
+        cell.revealed = true;
+
+        revealed++;
+
+
+        /*
+          Empty cells reveal their
+          surrounding cells.
+        */
+
+        if (cell.adjacent === 0) {
+
+          for (let dr = -1; dr <= 1; dr++) {
+
+            for (let dc = -1; dc <= 1; dc++) {
+
+              const r = row + dr;
+
+              const c = col + dc;
+
+
+              if (!isInside(r, c)) {
+                continue;
+              }
+
+
+              const neighbor =
+                board[r][c];
+
+
+              if (
+                !neighbor.revealed &&
+                !neighbor.flagged &&
+                !neighbor.mine
+              ) {
+
+                queue.push([r, c]);
+              }
+            }
+          }
+        }
+      }
+    }
+
+
+    /* ==========================================
+       FLAG / UNFLAG
+    ========================================== */
+
+    function toggleFlag(row, col) {
+
+      if (gameOver) {
+        return;
+      }
+
+
+      const cell =
+        board[row][col];
+
+
+      if (cell.revealed) {
+        return;
+      }
+
+
+      /*
+        Remove flag.
+      */
+
+      if (cell.flagged) {
+
+        cell.flagged = false;
+
+        flags--;
+      }
+
+
+      /*
+        Add flag.
+      */
+
+      else {
+
+        if (flags >= MINES) {
+          return;
+        }
+
+
+        cell.flagged = true;
+
+        flags++;
+      }
+
+
+      updateCounter();
+
+      render();
+    }
+
+
+    /* ==========================================
+       REVEAL ALL MINES
+    ========================================== */
+
+    function revealAllMines() {
+
+      for (let row = 0; row < SIZE; row++) {
+
+        for (let col = 0; col < SIZE; col++) {
+
+          if (board[row][col].mine) {
+
+            board[row][col].revealed = true;
+          }
+        }
+      }
+    }
+
+
+    /* ==========================================
+       WIN CHECK
+    ========================================== */
+
+    function hasWon() {
+
+      return (
+        revealed ===
+        SIZE * SIZE - MINES
+      );
+    }
+
+
+    /* ==========================================
+       COUNTER
+    ========================================== */
+
+    function updateCounter() {
+
+      counterElement.textContent =
+        String(MINES - flags)
+          .padStart(3, "0");
+    }
+
+
+    /* ==========================================
+       NEW GAME BUTTON
+    ========================================== */
+
+    restartButton.addEventListener(
+      "click",
+      createGame
+    );
+
+
+    /* ==========================================
+       R = NEW GAME
+    ========================================== */
+
+    document.addEventListener(
+      "keydown",
+      (event) => {
+
+        if (
+          event.key.toLowerCase() !== "r"
+        ) {
+          return;
+        }
+
+
+        if (
+          event.target.tagName === "INPUT" ||
+          event.target.tagName === "TEXTAREA"
+        ) {
+          return;
+        }
+
+
+        event.preventDefault();
+
+        createGame();
+      }
+    );
+
+
+    /* ==========================================
+       START
+    ========================================== */
+
+    createGame();
+
+  </script>
+
+</body>
+</html>

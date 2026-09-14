@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memory Match</title>
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #fff;
+    color: #111;
+    font-family: Arial, sans-serif;
+  }
+
+  .game {
+    width: min(90vw, 430px);
+    text-align: center;
+  }
+
+  h1 {
+    margin: 0 0 6px;
+    font-size: 32px;
+  }
+
+  .subtitle {
+    margin-bottom: 20px;
+    color: #777;
+    font-size: 14px;
+  }
+
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 34px;
+    margin-bottom: 20px;
+    font-size: 13px;
+  }
+
+  .stats strong {
+    display: block;
+    margin-top: 4px;
+    font-size: 20px;
+  }
+
+  .board {
+    width: min(88vw, 360px);
+    aspect-ratio: 1;
+    margin: 0 auto 20px;
+
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .card {
+    position: relative;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    perspective: 700px;
+    cursor: pointer;
+  }
+
+  .card-inner {
+    position: absolute;
+    inset: 0;
+    transition: transform 0.3s;
+    transform-style: preserve-3d;
+  }
+
+  .card.flipped .card-inner,
+  .card.matched .card-inner {
+    transform: rotateY(180deg);
+  }
+
+  .card-face {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border: 2px solid #111;
+    border-radius: 10px;
+
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+
+    font-size: clamp(22px, 7vw, 34px);
+  }
+
+  .card-front {
+    background: #111;
+    color: #fff;
+  }
+
+  .card-front::after {
+    content: "?";
+    font-size: 20px;
+  }
+
+  .card-back {
+    background: #fff;
+    color: #111;
+    transform: rotateY(180deg);
+  }
+
+  .card.matched .card-back {
+    background: #eee;
+  }
+
+  .card:not(.flipped):not(.matched):hover .card-inner {
+    transform: scale(0.96);
+  }
+
+  .status {
+    height: 22px;
+    margin-bottom: 16px;
+    color: #555;
+    font-size: 14px;
+  }
+
+  .restart {
+    padding: 11px 26px;
+    border: 2px solid #111;
+    border-radius: 8px;
+    background: #111;
+    color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+  }
+
+  .restart:hover {
+    background: #333;
+  }
+
+  .hint {
+    margin-top: 16px;
+    color: #999;
+    font-size: 12px;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="game">
+  <h1>Memory Match</h1>
+  <div class="subtitle">Find all the pairs</div>
+
+  <div class="stats">
+    <div>
+      MOVES
+      <strong id="moves">0</strong>
+    </div>
+
+    <div>
+      BEST
+      <strong id="best">—</strong>
+    </div>
+  </div>
+
+  <div class="board" id="board"></div>
+
+  <div class="status" id="status">Find a pair</div>
+
+  <button class="restart" id="restart">New Game</button>
+
+  <div class="hint">Press R to restart</div>
+</div>
+
+<script>
+  const boardEl = document.getElementById("board");
+  const movesEl = document.getElementById("moves");
+  const bestEl = document.getElementById("best");
+  const statusEl = document.getElementById("status");
+  const restartBtn = document.getElementById("restart");
+
+  const symbols = [
+    "●",
+    "▲",
+    "■",
+    "◆",
+    "★",
+    "✚",
+    "♥",
+    "☀"
+  ];
+
+  let cards = [];
+  let firstCard = null;
+  let secondCard = null;
+  let lockBoard = false;
+  let moves = 0;
+  let matchedPairs = 0;
+
+  let best = Number(localStorage.getItem("memoryMatchBest")) || 0;
+
+  bestEl.textContent = best || "—";
+
+  function shuffle(array) {
+    const result = [...array];
+
+    for (let i = result.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+
+      [result[i], result[j]] = [
+        result[j],
+        result[i]
+      ];
+    }
+
+    return result;
+  }
+
+  function createDeck() {
+    return shuffle([
+      ...symbols,
+      ...symbols
+    ]);
+  }
+
+  function render() {
+    boardEl.innerHTML = "";
+
+    cards.forEach((symbol, index) => {
+      const card = document.createElement("button");
+
+      card.className = "card";
+      card.dataset.index = index;
+
+      card.innerHTML = `
+        <div class="card-inner">
+          <div class="card-face card-front"></div>
+          <div class="card-face card-back">${symbol}</div>
+        </div>
+      `;
+
+      card.addEventListener("click", () => flipCard(card));
+
+      boardEl.appendChild(card);
+    });
+  }
+
+  function flipCard(card) {
+    if (
+      lockBoard ||
+      card === firstCard ||
+      card.classList.contains("matched") ||
+      card.classList.contains("flipped")
+    ) {
+      return;
+    }
+
+    card.classList.add("flipped");
+
+    if (!firstCard) {
+      firstCard = card;
+      statusEl.textContent = "Find its match";
+      return;
+    }
+
+    secondCard = card;
+    moves++;
+
+    movesEl.textContent = moves;
+
+    checkMatch();
+  }
+
+  function checkMatch() {
+    lockBoard = true;
+
+    const firstIndex = Number(firstCard.dataset.index);
+    const secondIndex = Number(secondCard.dataset.index);
+
+    if (cards[firstIndex] === cards[secondIndex]) {
+      handleMatch();
+    } else {
+      setTimeout(unflipCards, 700);
+    }
+  }
+
+  function handleMatch() {
+    firstCard.classList.add("matched");
+    secondCard.classList.add("matched");
+
+    matchedPairs++;
+
+    resetTurn();
+
+    if (matchedPairs === symbols.length) {
+      finishGame();
+    } else {
+      statusEl.textContent = "Match!";
+    }
+  }
+
+  function unflipCards() {
+    firstCard.classList.remove("flipped");
+    secondCard.classList.remove("flipped");
+
+    resetTurn();
+
+    statusEl.textContent = "Try again";
+  }
+
+  function resetTurn() {
+    firstCard = null;
+    secondCard = null;
+    lockBoard = false;
+  }
+
+  function finishGame() {
+    lockBoard = true;
+
+    if (!best || moves < best) {
+      best = moves;
+
+      bestEl.textContent = best;
+
+      localStorage.setItem(
+        "memoryMatchBest",
+        best
+      );
+
+      statusEl.textContent =
+        `Complete! New best: ${moves} moves`;
+    } else {
+      statusEl.textContent =
+        `Complete in ${moves} moves!`;
+    }
+  }
+
+  function newGame() {
+    cards = createDeck();
+
+    firstCard = null;
+    secondCard = null;
+    lockBoard = false;
+    moves = 0;
+    matchedPairs = 0;
+
+    movesEl.textContent = "0";
+
+    statusEl.textContent = "Find a pair";
+
+    render();
+  }
+
+  restartBtn.addEventListener("click", newGame);
+
+  document.addEventListener("keydown", event => {
+    if (event.key.toLowerCase() === "r") {
+      newGame();
+    }
+  });
+
+  newGame();
+</script>
+
+</body>
+</html>
