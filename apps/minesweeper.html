@@ -394,8 +394,9 @@
         const row = Math.floor(Math.random() * SIZE);
         const col = Math.floor(Math.random() * SIZE);
 
-        // First clicked cell is always safe
-        if (row === safeRow && col === safeCol) {
+        // First clicked cell (and its neighbors) must stay mine-free
+        // so the first click always reveals a blank tile.
+        if (Math.abs(row - safeRow) <= 1 && Math.abs(col - safeCol) <= 1) {
           continue;
         }
 
