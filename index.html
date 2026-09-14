@@ -1,0 +1,3102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FocuZ</title>
+
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#111111" />
+
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="FocuZ" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    :root {
+      --black: #111111;
+      --white: #ffffff;
+      --gray-1: #f7f7f7;
+      --gray-2: #e5e5e5;
+      --gray-3: #999999;
+      --gray-4: #666666;
+      --danger: #b42318;
+      --radius: 8px;
+      --transition: 170ms ease;
+      --content-width: 620px;
+    }
+
+    :root[data-theme="dark"] {
+      --black: #f2f2f2;
+      --white: #171717;
+      --gray-1: #212121;
+      --gray-2: #333333;
+      --gray-3: #8f8f8f;
+      --gray-4: #a8a8a8;
+      --danger: #ff6f61;
+    }
+
+    :root[data-theme="dark"] .modal-backdrop {
+      background: rgba(0, 0, 0, 0.6);
+    }
+
+    :root[data-theme="dark"] .button-danger:hover {
+      background: #2a1a18;
+    }
+
+    :root[data-theme="pink"] {
+      --black: #6b1d43;
+      --white: #fff0f5;
+      --gray-1: #ffe4ec;
+      --gray-2: #ffc2d9;
+      --gray-3: #d98cae;
+      --gray-4: #b15c82;
+      --danger: #d1274a;
+    }
+
+    :root[data-theme="pink"] .modal-backdrop {
+      background: rgba(107, 29, 67, 0.35);
+    }
+
+    :root[data-theme="pink"] .button-danger:hover {
+      background: #ffe0ea;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background: var(--white);
+      color: var(--black);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      transition:
+        background-color var(--transition),
+        color var(--transition);
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible {
+      outline: 2px solid var(--black);
+      outline-offset: 2px;
+    }
+
+    .profile-button {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 20;
+      width: 44px;
+      height: 44px;
+      border: 0;
+      border-radius: var(--radius);
+      background: var(--black);
+      color: var(--white);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      transition:
+        opacity var(--transition),
+        transform var(--transition);
+    }
+
+    .profile-button:hover {
+      opacity: 0.86;
+    }
+
+    .profile-button:active {
+      transform: scale(0.97);
+    }
+
+    .dashboard {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding-top: 40px;
+      padding-bottom: 40px;
+    }
+
+    .container {
+      width: min(calc(100% - 40px), var(--content-width));
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      margin-bottom: 8px;
+      color: var(--gray-3);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+    }
+
+    .greeting {
+      margin: 0;
+      font-size: 26px;
+      line-height: 1.2;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+    }
+
+    .apps {
+      margin-top: 28px;
+    }
+
+    /* App display */
+    .app-list {
+      display: flex;
+      flex-direction: column;
+      border-top: 1px solid var(--gray-2);
+    }
+
+    .app-row {
+      position: relative;
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--gray-2);
+      cursor: pointer;
+      user-select: none;
+      transition:
+        background var(--transition),
+        opacity var(--transition);
+    }
+
+    .app-row:hover {
+      background: var(--gray-1);
+    }
+
+    .app-row.dragging {
+      opacity: 0.45;
+    }
+
+    .app-row.drag-over {
+      border-top: 2px solid var(--black);
+    }
+
+    .app-info {
+      min-width: 0;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 0 12px;
+    }
+
+    .app-name {
+      min-width: 0;
+      color: var(--black);
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .app-description {
+      min-width: 0;
+      color: var(--gray-4);
+      font-size: 13px;
+      text-align: right;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .app-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      width: 0;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateX(8px);
+      transition:
+        width var(--transition),
+        opacity var(--transition),
+        transform var(--transition);
+    }
+
+    .app-row:hover .app-actions,
+    .app-row:focus-within .app-actions {
+      width: 72px;
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .icon-button {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--gray-4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition:
+        background var(--transition),
+        color var(--transition),
+        border-color var(--transition);
+    }
+
+    .icon-button:hover {
+      background: var(--white);
+      border-color: var(--gray-2);
+      color: var(--black);
+    }
+
+    .icon-button.delete:hover {
+      color: var(--danger);
+    }
+
+    .empty-state {
+      padding: 28px 12px;
+      border-bottom: 1px solid var(--gray-2);
+      color: var(--gray-3);
+      text-align: center;
+    }
+
+    .add-app-button {
+      width: 100%;
+      min-height: 40px;
+      margin-top: 12px;
+      border: 1px dashed var(--gray-2);
+      border-radius: var(--radius);
+      background: var(--white);
+      color: var(--gray-4);
+      transition:
+        border-color var(--transition),
+        color var(--transition),
+        background-color var(--transition);
+    }
+
+    .add-app-button:hover {
+      border-color: var(--gray-3);
+      background: var(--gray-1);
+      color: var(--black);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(17, 17, 17, 0.38);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition:
+        opacity var(--transition),
+        visibility var(--transition);
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .modal {
+      width: min(100%, 480px);
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      border: 1px solid var(--gray-2);
+      border-radius: var(--radius);
+      background: var(--white);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 20px;
+      border-bottom: 1px solid var(--gray-2);
+    }
+
+    .modal-eyebrow {
+      margin-bottom: 5px;
+      color: var(--gray-3);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.3;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      flex: 0 0 auto;
+      width: 32px;
+      height: 32px;
+      margin: -4px -4px 0 0;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--gray-4);
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      border-color: var(--gray-2);
+      background: var(--gray-1);
+      color: var(--black);
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .modal-body p {
+      margin: 0;
+      color: var(--gray-4);
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--black);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .form-input,
+    .form-textarea {
+      width: 100%;
+      border: 1px solid var(--gray-2);
+      border-radius: 6px;
+      background: var(--white);
+      color: var(--black);
+      transition: border-color var(--transition);
+    }
+
+    .form-input {
+      height: 40px;
+      padding: 0 12px;
+    }
+
+    .form-textarea {
+      min-height: 84px;
+      padding: 10px 12px;
+      resize: vertical;
+    }
+
+    .form-input:focus,
+    .form-textarea:focus {
+      border-color: var(--black);
+      outline: none;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 16px 20px 20px;
+      border-top: 1px solid var(--gray-2);
+    }
+
+    .button {
+      min-height: 38px;
+      padding: 0 14px;
+      border: 1px solid var(--black);
+      border-radius: 6px;
+      background: var(--black);
+      color: var(--white);
+      font-weight: 500;
+      transition:
+        background-color var(--transition),
+        color var(--transition),
+        border-color var(--transition),
+        opacity var(--transition);
+    }
+
+    .button:hover {
+      opacity: 0.86;
+    }
+
+    .button-secondary {
+      border-color: var(--gray-2);
+      background: var(--white);
+      color: var(--black);
+    }
+
+    .button-secondary:hover {
+      border-color: var(--gray-3);
+      background: var(--gray-1);
+      opacity: 1;
+    }
+
+    .button-danger {
+      color: var(--danger);
+      border-color: var(--gray-2);
+      background: var(--white);
+    }
+
+    .button-danger:hover {
+      background: #fdf3f2;
+      border-color: var(--danger);
+      opacity: 1;
+    }
+
+    .button-danger:focus-visible {
+      outline: 2px solid var(--danger);
+      outline-offset: 2px;
+    }
+
+    .button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .profile-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .profile-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      width: 100%;
+      min-height: 44px;
+      padding: 0 12px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--black);
+      text-align: left;
+      transition:
+        background-color var(--transition),
+        border-color var(--transition);
+    }
+
+    .profile-option:hover {
+      border-color: var(--gray-2);
+      background: var(--gray-1);
+    }
+
+    .profile-option.active {
+      border-color: var(--black);
+      background: var(--white);
+    }
+
+    .profile-option-name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 500;
+    }
+
+    .profile-active {
+      flex: 0 0 auto;
+      color: var(--gray-4);
+      font-size: 11px;
+    }
+
+    .profile-management-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .profile-management-actions .button {
+      flex: 1 1 auto;
+    }
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 200;
+      max-width: min(360px, calc(100vw - 40px));
+      padding: 10px 14px;
+      border: 1px solid var(--gray-2);
+      border-radius: var(--radius);
+      background: var(--white);
+      color: var(--black);
+      font-size: 13px;
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      transition:
+        opacity var(--transition),
+        transform var(--transition);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Profile modal tabs */
+    .tab-bar {
+      display: flex;
+      gap: 4px;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--gray-2);
+    }
+
+    .tab-button {
+      padding: 12px 4px;
+      margin-bottom: -1px;
+      border: 0;
+      border-bottom: 2px solid transparent;
+      background: transparent;
+      color: var(--gray-4);
+      font-size: 13px;
+      font-weight: 500;
+      transition:
+        color var(--transition),
+        border-color var(--transition);
+    }
+
+    .tab-button:hover {
+      color: var(--black);
+    }
+
+    .tab-button.active {
+      color: var(--black);
+      border-bottom-color: var(--black);
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .tab-panel:not(:last-child) {
+      margin-bottom: 24px;
+    }
+
+    /* Theme picker (segmented control) */
+    .theme-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 4px 0;
+    }
+
+    .theme-label {
+      color: var(--black);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .theme-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      padding: 3px;
+      border: 1px solid var(--gray-2);
+      border-radius: 999px;
+      background: var(--gray-1);
+    }
+
+    .theme-option {
+      padding: 6px 14px;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--gray-4);
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+      transition:
+        background-color var(--transition),
+        color var(--transition);
+    }
+
+    .theme-option:hover {
+      color: var(--black);
+    }
+
+    .theme-option.active {
+      background: var(--black);
+      color: var(--white);
+    }
+
+    /* Profile select row */
+    .profile-select-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .profile-select-row .form-input {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .profile-select-row .button {
+      flex: 0 0 auto;
+    }
+
+    /* Folder paths */
+    .folder-section {
+      margin-top: 20px;
+    }
+
+    .folder-section-label {
+      margin-bottom: 8px;
+      color: var(--black);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .folder-list {
+      display: flex;
+      flex-direction: column;
+      border-top: 1px solid var(--gray-2);
+    }
+
+    .folder-row {
+      position: relative;
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--gray-2);
+      transition: opacity var(--transition);
+    }
+
+    .folder-row.folder-app-stale {
+      opacity: 0.7;
+    }
+
+    .folder-info {
+      min-width: 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 0 4px;
+    }
+
+    .folder-name {
+      min-width: 0;
+      color: var(--black);
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .folder-meta {
+      color: var(--gray-4);
+      font-size: 12px;
+    }
+
+    .folder-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      width: 0;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateX(8px);
+      transition:
+        width var(--transition),
+        opacity var(--transition),
+        transform var(--transition);
+    }
+
+    .folder-row:hover .folder-actions,
+    .folder-row:focus-within .folder-actions {
+      width: 72px;
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .folder-empty {
+      padding: 20px 4px;
+      border-bottom: 1px solid var(--gray-2);
+      color: var(--gray-3);
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .add-folder-button {
+      width: 100%;
+      min-height: 38px;
+      margin-top: 12px;
+      border: 1px dashed var(--gray-2);
+      border-radius: var(--radius);
+      background: var(--white);
+      color: var(--gray-4);
+      font-size: 13px;
+      transition:
+        border-color var(--transition),
+        color var(--transition),
+        background-color var(--transition);
+    }
+
+    .add-folder-button:hover {
+      border-color: var(--gray-3);
+      background: var(--gray-1);
+      color: var(--black);
+    }
+
+    /* Apps that came from a folder whose blob link died on reload */
+    .app-row.folder-app-stale {
+      opacity: 0.6;
+    }
+
+    @media (max-width: 600px) {
+      .profile-button {
+        top: 16px;
+        right: 16px;
+      }
+
+      .dashboard {
+        padding-top: 82px;
+        padding-bottom: 28px;
+      }
+
+      .container {
+        width: min(calc(100% - 24px), var(--content-width));
+      }
+
+      .greeting {
+        font-size: 23px;
+      }
+
+      /* App display responsive behavior */
+      .app-row {
+        min-height: 56px;
+        gap: 8px;
+      }
+
+      .app-info {
+        gap: 12px;
+        padding: 0 8px;
+      }
+
+      .app-name {
+        flex: 0 0 42%;
+      }
+
+      .app-description {
+        flex: 1;
+      }
+
+      .app-actions {
+        width: 72px;
+        opacity: 1;
+        transform: none;
+      }
+
+      .icon-button {
+        width: 32px;
+        height: 32px;
+      }
+
+      .modal-backdrop {
+        padding: 12px;
+      }
+
+      .modal {
+        max-height: calc(100vh - 24px);
+      }
+
+      .modal-header,
+      .modal-body {
+        padding: 16px;
+      }
+
+      .modal-actions {
+        padding: 14px 16px 16px;
+      }
+
+      .profile-management-actions {
+        flex-direction: column;
+      }
+
+      .profile-management-actions .button {
+        width: 100%;
+      }
+
+      .tab-bar {
+        padding: 0 16px;
+      }
+
+      .profile-select-row {
+        flex-wrap: wrap;
+      }
+
+      .profile-select-row .form-input {
+        flex: 1 1 100%;
+      }
+
+      .folder-actions {
+        width: 72px;
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .app-info {
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 1px;
+      }
+
+      .app-name {
+        flex-basis: auto;
+        width: 100%;
+      }
+
+      .app-description {
+        width: 100%;
+        text-align: left;
+      }
+
+      .app-actions {
+        width: 68px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <button
+    type="button"
+    class="profile-button"
+    id="profileButton"
+    aria-label="Open profile management"
+  >
+    J
+  </button>
+
+  <main class="dashboard">
+    <div class="container">
+      <div class="eyebrow">WELCOME BACK</div>
+      <h1 class="greeting" id="greeting">Hello Juan!</h1>
+
+      <section
+        class="apps app-list"
+        id="appList"
+        aria-label="Applications"
+      ></section>
+
+      <button
+        type="button"
+        class="add-app-button"
+        id="addAppButton"
+      >
+        + Add App
+      </button>
+    </div>
+  </main>
+
+  <!-- Add / Edit App Modal -->
+  <div
+    class="modal-backdrop"
+    id="appModal"
+    aria-hidden="true"
+  >
+    <form
+      class="modal"
+      id="appForm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="appModalTitle"
+    >
+      <div class="modal-header">
+        <div>
+          <div class="modal-eyebrow" id="appModalEyebrow">APP</div>
+          <h2 id="appModalTitle">Add App</h2>
+        </div>
+
+        <button
+          type="button"
+          class="modal-close"
+          data-close-modal="appModal"
+          aria-label="Close"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="appName">App Name</label>
+          <input
+            class="form-input"
+            id="appName"
+            name="name"
+            type="text"
+            required
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="appDescription">
+            Description
+          </label>
+
+          <textarea
+            class="form-textarea"
+            id="appDescription"
+            name="description"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="appPath">Page Path</label>
+
+          <input
+            class="form-input"
+            id="appPath"
+            name="path"
+            type="text"
+            required
+            autocomplete="off"
+            placeholder="/example"
+          />
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button
+          type="button"
+          class="button button-secondary"
+          data-close-modal="appModal"
+        >
+          Cancel
+        </button>
+
+        <button type="submit" class="button">
+          Save
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Profile Management Modal -->
+  <div
+    class="modal-backdrop"
+    id="profileModal"
+    aria-hidden="true"
+  >
+    <div
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="profileModalTitle"
+    >
+      <div class="modal-header">
+        <div>
+          <div class="modal-eyebrow">PROFILE</div>
+          <h2 id="profileModalTitle">Profile Management</h2>
+        </div>
+
+        <button
+          type="button"
+          class="modal-close"
+          data-close-modal="profileModal"
+          aria-label="Close"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="tab-bar" id="profileTabBar">
+        <button
+          type="button"
+          class="tab-button active"
+          id="appearanceTabButton"
+          data-tab="appearanceTab"
+        >
+          Appearance
+        </button>
+
+        <button
+          type="button"
+          class="tab-button"
+          id="dataTabButton"
+          data-tab="dataTab"
+        >
+          Data
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="tab-panel active" id="appearanceTab">
+          <div class="theme-row">
+            <span class="theme-label">Theme</span>
+
+            <div
+              class="theme-options"
+              id="themeOptions"
+              role="radiogroup"
+              aria-label="Theme"
+            >
+              <button
+                type="button"
+                class="theme-option"
+                data-theme-option="light"
+                role="radio"
+              >
+                Light
+              </button>
+
+              <button
+                type="button"
+                class="theme-option"
+                data-theme-option="dark"
+                role="radio"
+              >
+                Dark
+              </button>
+
+              <button
+                type="button"
+                class="theme-option"
+                data-theme-option="pink"
+                role="radio"
+              >
+                Pink
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="dataTab">
+          <div class="profile-select-row">
+            <select
+              class="form-input"
+              id="profileSelect"
+              aria-label="Active profile"
+            ></select>
+
+            <button
+              type="button"
+              class="button button-secondary"
+              id="renameProfileButton"
+            >
+              Rename
+            </button>
+          </div>
+
+          <div class="folder-section">
+            <div class="folder-section-label">Folder Paths</div>
+
+            <div class="folder-list" id="folderList"></div>
+
+            <button
+              type="button"
+              class="add-folder-button"
+              id="addFolderButton"
+            >
+              + Add Folder
+            </button>
+
+            <input
+              type="file"
+              id="folderPickerInput"
+              webkitdirectory
+              directory
+              multiple
+              class="sr-only"
+            />
+          </div>
+
+          <div class="profile-management-actions">
+            <button
+              type="button"
+              class="button button-secondary"
+              id="addProfileButton"
+            >
+              Add Profile
+            </button>
+
+            <button
+              type="button"
+              class="button button-secondary"
+              id="exportButton"
+            >
+              Export JSON
+            </button>
+
+            <button
+              type="button"
+              class="button button-secondary"
+              id="importButton"
+            >
+              Import JSON
+            </button>
+
+            <button
+              type="button"
+              class="button button-danger"
+              id="deleteProfileButton"
+            >
+              Delete Profile
+            </button>
+
+            <input
+              type="file"
+              id="importInput"
+              accept=".json,application/json"
+              class="sr-only"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rename Profile Modal -->
+  <div
+    class="modal-backdrop"
+    id="renameProfileModal"
+    aria-hidden="true"
+  >
+    <form
+      class="modal"
+      id="renameProfileForm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="renameProfileTitle"
+    >
+      <div class="modal-header">
+        <div>
+          <div class="modal-eyebrow">PROFILE</div>
+          <h2 id="renameProfileTitle">Rename Profile</h2>
+        </div>
+
+        <button
+          type="button"
+          class="modal-close"
+          data-close-modal="renameProfileModal"
+          aria-label="Close"
+          id="closeRenameProfileButton"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="renameProfileInput">
+            Profile Name
+          </label>
+
+          <input
+            class="form-input"
+            id="renameProfileInput"
+            name="renameProfile"
+            type="text"
+            required
+            autocomplete="off"
+          />
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button
+          type="button"
+          class="button button-secondary"
+          id="cancelRenameProfileButton"
+        >
+          Cancel
+        </button>
+
+        <button type="submit" class="button">
+          Save
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Add Profile Modal -->
+  <div
+    class="modal-backdrop"
+    id="addProfileModal"
+    aria-hidden="true"
+  >
+    <form
+      class="modal"
+      id="addProfileForm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="addProfileTitle"
+    >
+      <div class="modal-header">
+        <div>
+          <div class="modal-eyebrow">PROFILE</div>
+          <h2 id="addProfileTitle">Add Profile</h2>
+        </div>
+
+        <button
+          type="button"
+          class="modal-close"
+          id="closeAddProfileButton"
+          aria-label="Close"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="profileName">
+            Profile Name
+          </label>
+
+          <input
+            class="form-input"
+            id="profileName"
+            name="profileName"
+            type="text"
+            required
+            autocomplete="off"
+          />
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button
+          type="button"
+          class="button button-secondary"
+          id="cancelAddProfileButton"
+        >
+          Cancel
+        </button>
+
+        <button type="submit" class="button">
+          Create Profile
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Delete Profile Confirmation Modal -->
+  <div
+    class="modal-backdrop"
+    id="deleteProfileModal"
+    aria-hidden="true"
+  >
+    <div
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="deleteProfileTitle"
+    >
+      <div class="modal-header">
+        <div>
+          <div class="modal-eyebrow">CONFIRM DELETION</div>
+          <h2 id="deleteProfileTitle">Delete profile?</h2>
+        </div>
+
+        <button
+          type="button"
+          class="modal-close"
+          id="closeDeleteProfileButton"
+          aria-label="Close"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p id="deleteProfileMessage">
+          This profile and all of its apps will be permanently deleted.
+        </p>
+      </div>
+
+      <div class="modal-actions">
+        <button
+          type="button"
+          class="button button-secondary"
+          id="cancelDeleteProfileButton"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          class="button button-danger"
+          id="confirmDeleteProfileButton"
+        >
+          Delete Profile
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete App Confirmation Modal -->
+  <div
+    class="modal-backdrop"
+    id="deleteAppModal"
+    aria-hidden="true"
+  >
+    <div
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="deleteAppTitle"
+    >
+      <div class="modal-header">
+        <div>
+          <div class="modal-eyebrow">CONFIRM DELETION</div>
+          <h2 id="deleteAppTitle">Delete app?</h2>
+        </div>
+
+        <button
+          type="button"
+          class="modal-close"
+          id="closeDeleteAppButton"
+          aria-label="Close"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p id="deleteAppMessage">
+          This app will be permanently deleted.
+        </p>
+      </div>
+
+      <div class="modal-actions">
+        <button
+          type="button"
+          class="button button-secondary"
+          id="cancelDeleteAppButton"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          class="button button-danger"
+          id="confirmDeleteAppButton"
+        >
+          Delete App
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="toast"
+    id="toast"
+    role="status"
+    aria-live="polite"
+  ></div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    const STORAGE_KEY = "minimalWebAppDashboard";
+    const THEME_KEY = "minimalWebAppDashboardTheme";
+    const LAST_TAB_KEY = "minimalWebAppDashboardLastTab";
+
+    function loadLastProfileTab() {
+      try {
+        const saved = localStorage.getItem(LAST_TAB_KEY);
+        return saved === "dataTab" || saved === "appearanceTab"
+          ? saved
+          : null;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function saveLastProfileTab(tabId) {
+      try {
+        localStorage.setItem(LAST_TAB_KEY, tabId);
+      } catch (error) {
+        console.warn("Unable to save last active tab.", error);
+      }
+    }
+
+    function applyTheme(theme) {
+      if (theme === "light") {
+        document.documentElement.removeAttribute("data-theme");
+      } else {
+        document.documentElement.setAttribute("data-theme", theme);
+      }
+    }
+
+    /* Add future themes here — just extend this list, add a matching
+       :root[data-theme="..."] CSS block, and a .theme-option button
+       with the matching data-theme-option value. */
+    const AVAILABLE_THEMES = ["light", "dark", "pink"];
+
+    function loadTheme() {
+      try {
+        const saved = localStorage.getItem(THEME_KEY);
+        return AVAILABLE_THEMES.includes(saved) ? saved : "light";
+      } catch (error) {
+        return "light";
+      }
+    }
+
+    function saveTheme(theme) {
+      try {
+        localStorage.setItem(THEME_KEY, theme);
+      } catch (error) {
+        console.warn("Unable to save theme.", error);
+      }
+    }
+
+    let currentTheme = loadTheme();
+    applyTheme(currentTheme);
+
+    /* Persistent storage for folder-picker file contents (avoids blob URLs
+       expiring on reload — content is saved here and a fresh blob URL is
+       rebuilt from it every time the page loads). Standard IndexedDB,
+       supported in every major browser. */
+    const FILE_DB_NAME = "minimalWebAppDashboardFiles";
+    const FILE_STORE_NAME = "files";
+
+    function openFileDB() {
+      return new Promise((resolve, reject) => {
+        if (!("indexedDB" in window)) {
+          reject(new Error("IndexedDB is not available."));
+          return;
+        }
+
+        const request = indexedDB.open(FILE_DB_NAME, 1);
+
+        request.onupgradeneeded = () => {
+          const db = request.result;
+
+          if (!db.objectStoreNames.contains(FILE_STORE_NAME)) {
+            db.createObjectStore(FILE_STORE_NAME);
+          }
+        };
+
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async function idbPutFile(id, content) {
+      try {
+        const db = await openFileDB();
+
+        await new Promise((resolve, reject) => {
+          const tx = db.transaction(FILE_STORE_NAME, "readwrite");
+          tx.objectStore(FILE_STORE_NAME).put(content, id);
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => reject(tx.error);
+        });
+      } catch (error) {
+        console.warn("Unable to store file content.", error);
+      }
+    }
+
+    async function idbGetFile(id) {
+      const db = await openFileDB();
+
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(FILE_STORE_NAME, "readonly");
+        const request = tx.objectStore(FILE_STORE_NAME).get(id);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async function idbDeleteFile(id) {
+      try {
+        const db = await openFileDB();
+
+        await new Promise((resolve, reject) => {
+          const tx = db.transaction(FILE_STORE_NAME, "readwrite");
+          tx.objectStore(FILE_STORE_NAME).delete(id);
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => reject(tx.error);
+        });
+      } catch (error) {
+        console.warn("Unable to delete file content.", error);
+      }
+    }
+
+    function makeHtmlBlobUrl(content) {
+      return URL.createObjectURL(
+        new Blob([content], { type: "text/html" })
+      );
+    }
+
+    const defaultState = {
+      profiles: [
+        {
+          name: "Juan",
+          folders: [],
+          apps: [
+            {
+              id: "pwwuav",
+              name: "Dashboard",
+              description: "Your main overview",
+              path: "/dashboard"
+            },
+            {
+              id: "calendar",
+              name: "Calendar",
+              description: "Manage your schedule",
+              path: "/calendar"
+            },
+            {
+              id: "notes",
+              name: "Notes",
+              description: "Quick notes and ideas",
+              path: "/notes"
+            },
+            {
+              id: "tasks",
+              name: "Tasks",
+              description: "Track things to do",
+              path: "/tasks"
+            },
+            {
+              id: "settings",
+              name: "Settings",
+              description: "Manage your preferences",
+              path: "/settings"
+            }
+          ]
+        }
+      ],
+      activeProfile: 0
+    };
+
+    let state = loadState();
+    let editingAppId = null;
+    let draggedAppId = null;
+    let toastTimer = null;
+
+    /* Tracks whether the rename/add-profile modals were opened from inside
+       Profile Management (rather than a fresh top-level open), so we know
+       whether to reopen Profile Management after they're closed. */
+    let returnToProfileModal = false;
+
+    /* Delete App modal state */
+    let deletingAppId = null;
+
+    /* Folder-path feature: which action the hidden folder <input> should
+       perform once the user finishes picking a folder, and which folders
+       have a live (non-expired) blob URL in this browser session. */
+    let pendingFolderAction = null;
+    const freshFolderIds = new Set();
+
+    const profileButton = $("profileButton");
+    const greeting = $("greeting");
+    const appList = $("appList");
+    const addAppButton = $("addAppButton");
+
+    const appModal = $("appModal");
+    const appForm = $("appForm");
+    const appModalTitle = $("appModalTitle");
+    const appModalEyebrow = $("appModalEyebrow");
+    const appName = $("appName");
+    const appDescription = $("appDescription");
+    const appPath = $("appPath");
+
+    const profileModal = $("profileModal");
+    const appearanceTabButton = $("appearanceTabButton");
+    const dataTabButton = $("dataTabButton");
+    const themeOptions = $("themeOptions");
+    const profileSelect = $("profileSelect");
+    const renameProfileButton = $("renameProfileButton");
+    const folderList = $("folderList");
+    const addFolderButton = $("addFolderButton");
+    const folderPickerInput = $("folderPickerInput");
+    const addProfileButton = $("addProfileButton");
+    const exportButton = $("exportButton");
+    const importButton = $("importButton");
+    const importInput = $("importInput");
+
+    const renameProfileModal = $("renameProfileModal");
+    const renameProfileForm = $("renameProfileForm");
+    const renameProfileInput = $("renameProfileInput");
+    const cancelRenameProfileButton = $("cancelRenameProfileButton");
+    const closeRenameProfileButton = $("closeRenameProfileButton");
+
+    const addProfileModal = $("addProfileModal");
+    const addProfileForm = $("addProfileForm");
+    const profileNameInput = $("profileName");
+    const cancelAddProfileButton = $("cancelAddProfileButton");
+    const closeAddProfileButton = $("closeAddProfileButton");
+
+    const deleteProfileButton = $("deleteProfileButton");
+    const deleteProfileModal = $("deleteProfileModal");
+    const deleteProfileMessage = $("deleteProfileMessage");
+    const confirmDeleteProfileButton = $("confirmDeleteProfileButton");
+    const cancelDeleteProfileButton = $("cancelDeleteProfileButton");
+    const closeDeleteProfileButton = $("closeDeleteProfileButton");
+
+    /* Delete App modal elements */
+    const deleteAppModal = $("deleteAppModal");
+    const deleteAppMessage = $("deleteAppMessage");
+    const confirmDeleteAppButton = $("confirmDeleteAppButton");
+    const cancelDeleteAppButton = $("cancelDeleteAppButton");
+    const closeDeleteAppButton = $("closeDeleteAppButton");
+
+    const toast = $("toast");
+
+    function updateThemeOptionsUI() {
+      document.querySelectorAll(".theme-option").forEach((button) => {
+        const isActive =
+          button.getAttribute("data-theme-option") === currentTheme;
+
+        button.classList.toggle("active", isActive);
+        button.setAttribute("aria-checked", isActive ? "true" : "false");
+      });
+    }
+
+    function setTheme(theme) {
+      currentTheme = theme;
+      applyTheme(theme);
+      saveTheme(theme);
+      updateThemeOptionsUI();
+    }
+
+    updateThemeOptionsUI();
+
+    function cloneDefaultState() {
+      return JSON.parse(JSON.stringify(defaultState));
+    }
+
+    function createId() {
+      if (
+        typeof crypto !== "undefined" &&
+        typeof crypto.randomUUID === "function"
+      ) {
+        return crypto.randomUUID();
+      }
+
+      return Math.random().toString(36).slice(2, 8);
+    }
+
+    function isValidApp(app) {
+      return (
+        app &&
+        typeof app === "object" &&
+        typeof app.id === "string" &&
+        typeof app.name === "string" &&
+        typeof app.description === "string" &&
+        typeof app.path === "string"
+      );
+    }
+
+    function isValidFolder(folder) {
+      return (
+        folder &&
+        typeof folder === "object" &&
+        typeof folder.id === "string" &&
+        typeof folder.name === "string" &&
+        Array.isArray(folder.appIds) &&
+        folder.appIds.every((id) => typeof id === "string")
+      );
+    }
+
+    function isValidProfile(profile) {
+      return (
+        profile &&
+        typeof profile === "object" &&
+        typeof profile.name === "string" &&
+        Array.isArray(profile.apps) &&
+        profile.apps.every(isValidApp) &&
+        (profile.folders === undefined ||
+          (Array.isArray(profile.folders) &&
+            profile.folders.every(isValidFolder)))
+      );
+    }
+
+    function isValidState(value) {
+      return (
+        value &&
+        typeof value === "object" &&
+        Array.isArray(value.profiles) &&
+        value.profiles.length > 0 &&
+        Number.isInteger(value.activeProfile) &&
+        value.activeProfile >= 0 &&
+        value.activeProfile < value.profiles.length &&
+        value.profiles.every(isValidProfile)
+      );
+    }
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+
+        if (!saved) {
+          return cloneDefaultState();
+        }
+
+        const parsed = JSON.parse(saved);
+
+        if (isValidState(parsed)) {
+          return parsed;
+        }
+      } catch (error) {
+        console.warn("Unable to load saved state.", error);
+      }
+
+      return cloneDefaultState();
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function getActiveProfile() {
+      return state.profiles[state.activeProfile];
+    }
+
+    function renderProfile() {
+      const profile = getActiveProfile();
+
+      greeting.textContent = `Hello ${profile.name}!`;
+
+      const initials = profile.name
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0].toUpperCase())
+        .join("");
+
+      profileButton.textContent = initials || "?";
+
+      renderApps();
+      renderProfileList();
+      renderFolderList();
+
+      deleteProfileButton.disabled = state.profiles.length <= 1;
+    }
+
+    function renderApps() {
+      const profile = getActiveProfile();
+
+      appList.innerHTML = "";
+
+      if (profile.apps.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.textContent = "No apps added yet.";
+        appList.appendChild(empty);
+        return;
+      }
+
+      profile.apps.forEach((app) => {
+        const row = document.createElement("div");
+        row.className = "app-row";
+        row.draggable = true;
+        row.dataset.appId = app.id;
+        row.tabIndex = 0;
+
+        const isStaleFolderApp =
+          Boolean(app.sourceFolderId) &&
+          !freshFolderIds.has(app.sourceFolderId);
+
+        if (isStaleFolderApp) {
+          row.classList.add("folder-app-stale");
+        }
+
+        const info = document.createElement("div");
+        info.className = "app-info";
+
+        const name = document.createElement("div");
+        name.className = "app-name";
+        name.textContent = app.name;
+
+        const description = document.createElement("div");
+        description.className = "app-description";
+        description.textContent = app.description || "";
+
+        info.appendChild(name);
+        info.appendChild(description);
+
+        const actions = document.createElement("div");
+        actions.className = "app-actions";
+
+        const editButton = document.createElement("button");
+        editButton.type = "button";
+        editButton.className = "icon-button";
+        editButton.textContent = "✎";
+        editButton.setAttribute("aria-label", `Edit ${app.name}`);
+
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className = "icon-button delete";
+        deleteButton.textContent = "×";
+        deleteButton.setAttribute("aria-label", `Delete ${app.name}`);
+
+        editButton.addEventListener("click", (event) => {
+          event.stopPropagation();
+          openEditAppModal(app.id);
+        });
+
+        deleteButton.addEventListener("click", (event) => {
+          event.stopPropagation();
+          deleteApp(app.id);
+        });
+
+        actions.appendChild(editButton);
+        actions.appendChild(deleteButton);
+
+        row.appendChild(info);
+        row.appendChild(actions);
+
+        function openApp() {
+          if (isStaleFolderApp) {
+            showToast(
+              "Link expired — refresh its folder in Profile settings."
+            );
+            return;
+          }
+
+          window.location.href = app.path;
+        }
+
+        row.addEventListener("click", openApp);
+
+        row.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openApp();
+          }
+        });
+
+        row.addEventListener("dragstart", (event) => {
+          draggedAppId = app.id;
+          row.classList.add("dragging");
+
+          if (event.dataTransfer) {
+            event.dataTransfer.effectAllowed = "move";
+            event.dataTransfer.setData("text/plain", app.id);
+          }
+        });
+
+        row.addEventListener("dragend", () => {
+          draggedAppId = null;
+          row.classList.remove("dragging");
+
+          document
+            .querySelectorAll(".app-row")
+            .forEach((item) => item.classList.remove("drag-over"));
+        });
+
+        row.addEventListener("dragover", (event) => {
+          event.preventDefault();
+
+          if (draggedAppId && draggedAppId !== app.id) {
+            event.dataTransfer.dropEffect = "move";
+            row.classList.add("drag-over");
+          }
+        });
+
+        row.addEventListener("dragleave", () => {
+          row.classList.remove("drag-over");
+        });
+
+        row.addEventListener("drop", (event) => {
+          event.preventDefault();
+          row.classList.remove("drag-over");
+
+          const sourceId =
+            draggedAppId ||
+            event.dataTransfer.getData("text/plain");
+
+          if (!sourceId || sourceId === app.id) {
+            return;
+          }
+
+          reorderApps(sourceId, app.id);
+        });
+
+        appList.appendChild(row);
+      });
+    }
+
+    function reorderApps(sourceId, targetId) {
+      const apps = getActiveProfile().apps;
+
+      const sourceIndex = apps.findIndex(
+        (app) => app.id === sourceId
+      );
+
+      const targetIndex = apps.findIndex(
+        (app) => app.id === targetId
+      );
+
+      if (sourceIndex === -1 || targetIndex === -1) {
+        return;
+      }
+
+      const [moved] = apps.splice(sourceIndex, 1);
+      apps.splice(targetIndex, 0, moved);
+
+      saveState();
+      renderApps();
+    }
+
+    /* Delete App confirmation modal */
+    function deleteApp(id) {
+      const profile = getActiveProfile();
+      const app = profile.apps.find((item) => item.id === id);
+
+      if (!app) {
+        return;
+      }
+
+      deletingAppId = id;
+
+      deleteAppMessage.textContent =
+        `Delete "${app.name}"? This app will be permanently deleted.`;
+
+      openModal(deleteAppModal);
+
+      setTimeout(() => {
+        confirmDeleteAppButton.focus();
+      }, 50);
+    }
+
+    async function confirmDeleteApp() {
+      if (!deletingAppId) {
+        return;
+      }
+
+      const profile = getActiveProfile();
+
+      const app = profile.apps.find(
+        (item) => item.id === deletingAppId
+      );
+
+      if (!app) {
+        deletingAppId = null;
+        closeModal(deleteAppModal);
+        return;
+      }
+
+      profile.apps = profile.apps.filter(
+        (item) => item.id !== deletingAppId
+      );
+
+      if (app.sourceFolderId) {
+        const folder = (profile.folders || []).find(
+          (item) => item.id === app.sourceFolderId
+        );
+
+        if (folder) {
+          folder.appIds = folder.appIds.filter((id) => id !== app.id);
+        }
+
+        await idbDeleteFile(app.id);
+      }
+
+      saveState();
+      renderApps();
+      renderFolderList();
+
+      closeModal(deleteAppModal);
+
+      showToast(`Deleted ${app.name}.`);
+
+      deletingAppId = null;
+    }
+
+    function cancelDeleteApp() {
+      deletingAppId = null;
+      closeModal(deleteAppModal);
+    }
+
+    function openModal(modal) {
+      document
+        .querySelectorAll(".modal-backdrop.open")
+        .forEach((openModalElement) => {
+          if (openModalElement !== modal) {
+            closeModal(openModalElement);
+          }
+        });
+
+      modal.classList.add("open");
+      modal.setAttribute("aria-hidden", "false");
+
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeModal(modal) {
+      modal.classList.remove("open");
+      modal.setAttribute("aria-hidden", "true");
+
+      const anyOpenModal = document.querySelector(
+        ".modal-backdrop.open"
+      );
+
+      if (!anyOpenModal) {
+        document.body.style.overflow = "";
+      }
+    }
+
+    function closeAllModals() {
+      document
+        .querySelectorAll(".modal-backdrop.open")
+        .forEach((modal) => closeModal(modal));
+
+      document.body.style.overflow = "";
+    }
+
+    function returnToProfileManagement() {
+      returnToProfileModal = false;
+
+      renderProfileList();
+      renderFolderList();
+      deleteProfileButton.disabled = state.profiles.length <= 1;
+
+      openModal(profileModal);
+    }
+
+    function openAddAppModal() {
+      editingAppId = null;
+
+      appModalEyebrow.textContent = "APP";
+      appModalTitle.textContent = "Add App";
+
+      appName.value = "";
+      appDescription.value = "";
+      appPath.value = "";
+
+      openModal(appModal);
+
+      setTimeout(() => {
+        appName.focus();
+      }, 50);
+    }
+
+    function openEditAppModal(id) {
+      const app = getActiveProfile().apps.find(
+        (item) => item.id === id
+      );
+
+      if (!app) {
+        return;
+      }
+
+      editingAppId = id;
+
+      appModalEyebrow.textContent = "APP";
+      appModalTitle.textContent = "Edit App";
+
+      appName.value = app.name;
+      appDescription.value = app.description;
+      appPath.value = app.path;
+
+      openModal(appModal);
+
+      setTimeout(() => {
+        appName.focus();
+      }, 50);
+    }
+
+    function saveApp(event) {
+      event.preventDefault();
+
+      const name = appName.value.trim();
+      const description = appDescription.value.trim();
+      const path = appPath.value.trim();
+
+      if (!name) {
+        appName.focus();
+        return;
+      }
+
+      if (!path) {
+        appPath.focus();
+        return;
+      }
+
+      const profile = getActiveProfile();
+
+      if (editingAppId) {
+        const app = profile.apps.find(
+          (item) => item.id === editingAppId
+        );
+
+        if (app) {
+          app.name = name;
+          app.description = description;
+          app.path = path;
+        }
+      } else {
+        profile.apps.push({
+          id: createId(),
+          name,
+          description,
+          path
+        });
+      }
+
+      saveState();
+      renderApps();
+      closeModal(appModal);
+
+      showToast(
+        editingAppId
+          ? "App updated."
+          : "App added."
+      );
+
+      editingAppId = null;
+    }
+
+    function renderProfileList() {
+      profileSelect.innerHTML = "";
+
+      state.profiles.forEach((profile, index) => {
+        const option = document.createElement("option");
+        option.value = String(index);
+        option.textContent = profile.name;
+        profileSelect.appendChild(option);
+      });
+
+      profileSelect.value = String(state.activeProfile);
+    }
+
+    function getFileBaseName(fileName) {
+      const dotIndex = fileName.lastIndexOf(".");
+      return dotIndex > 0 ? fileName.slice(0, dotIndex) : fileName;
+    }
+
+    function getFolderDisplayName(files) {
+      const first = files[0];
+
+      if (first && first.webkitRelativePath) {
+        return first.webkitRelativePath.split("/")[0];
+      }
+
+      return "Folder";
+    }
+
+    function collectHtmlFiles(fileList) {
+      return Array.from(fileList).filter((file) => /\.html?$/i.test(file.name));
+    }
+
+    async function addFolder(fileList) {
+      const htmlFiles = collectHtmlFiles(fileList);
+
+      if (htmlFiles.length === 0) {
+        showToast("No HTML files found in that folder.");
+        return;
+      }
+
+      const profile = getActiveProfile();
+
+      if (!Array.isArray(profile.folders)) {
+        profile.folders = [];
+      }
+
+      const folderId = createId();
+      const folderName = getFolderDisplayName(htmlFiles);
+      const appIds = [];
+
+      for (const file of htmlFiles) {
+        const appId = createId();
+        const content = await file.text();
+
+        await idbPutFile(appId, content);
+
+        profile.apps.push({
+          id: appId,
+          name: getFileBaseName(file.name),
+          description: "",
+          path: makeHtmlBlobUrl(content),
+          sourceFolderId: folderId
+        });
+
+        appIds.push(appId);
+      }
+
+      profile.folders.push({
+        id: folderId,
+        name: folderName,
+        appIds
+      });
+
+      freshFolderIds.add(folderId);
+
+      saveState();
+      renderApps();
+      renderFolderList();
+
+      showToast(`Added ${htmlFiles.length} app(s) from ${folderName}.`);
+    }
+
+    async function refreshFolder(folderId, fileList) {
+      const profile = getActiveProfile();
+      const folder = (profile.folders || []).find(
+        (item) => item.id === folderId
+      );
+
+      if (!folder) {
+        return;
+      }
+
+      const htmlFiles = collectHtmlFiles(fileList);
+      const folderName = getFolderDisplayName(htmlFiles) || folder.name;
+
+      const existingApps = profile.apps.filter(
+        (app) => app.sourceFolderId === folderId
+      );
+
+      const stillPresentNames = new Set(
+        htmlFiles.map((file) => getFileBaseName(file.name))
+      );
+
+      const removedApps = profile.apps.filter(
+        (app) =>
+          app.sourceFolderId === folderId && !stillPresentNames.has(app.name)
+      );
+
+      /* Drop apps whose file is no longer in the folder */
+      profile.apps = profile.apps.filter((app) => {
+        if (app.sourceFolderId !== folderId) {
+          return true;
+        }
+
+        return stillPresentNames.has(app.name);
+      });
+
+      for (const app of removedApps) {
+        await idbDeleteFile(app.id);
+      }
+
+      const appIds = profile.apps
+        .filter((app) => app.sourceFolderId === folderId)
+        .map((app) => app.id);
+
+      for (const file of htmlFiles) {
+        const baseName = getFileBaseName(file.name);
+        const existing = existingApps.find((app) => app.name === baseName);
+        const content = await file.text();
+
+        if (existing) {
+          const stillTracked = profile.apps.find(
+            (app) => app.id === existing.id
+          );
+
+          if (stillTracked) {
+            /* Re-save content in case the file changed on disk, and
+               rebuild the link from it. */
+            await idbPutFile(stillTracked.id, content);
+            stillTracked.path = makeHtmlBlobUrl(content);
+          }
+
+          continue;
+        }
+
+        const appId = createId();
+
+        await idbPutFile(appId, content);
+
+        profile.apps.push({
+          id: appId,
+          name: baseName,
+          description: "",
+          path: makeHtmlBlobUrl(content),
+          sourceFolderId: folderId
+        });
+
+        appIds.push(appId);
+      }
+
+      folder.name = folderName;
+      folder.appIds = appIds;
+
+      freshFolderIds.add(folderId);
+
+      saveState();
+      renderApps();
+      renderFolderList();
+
+      showToast(`Refreshed ${folder.name}.`);
+    }
+
+    async function deleteFolder(folderId) {
+      const profile = getActiveProfile();
+      const folder = (profile.folders || []).find(
+        (item) => item.id === folderId
+      );
+
+      if (!folder) {
+        return;
+      }
+
+      const removedApps = profile.apps.filter(
+        (app) => app.sourceFolderId === folderId
+      );
+
+      profile.apps = profile.apps.filter(
+        (app) => app.sourceFolderId !== folderId
+      );
+
+      profile.folders = (profile.folders || []).filter(
+        (item) => item.id !== folderId
+      );
+
+      freshFolderIds.delete(folderId);
+
+      for (const app of removedApps) {
+        await idbDeleteFile(app.id);
+      }
+
+      saveState();
+      renderApps();
+      renderFolderList();
+
+      showToast(`Removed ${folder.name} and its apps.`);
+    }
+
+    function renderFolderList() {
+      const profile = getActiveProfile();
+      const folders = Array.isArray(profile.folders) ? profile.folders : [];
+
+      folderList.innerHTML = "";
+
+      if (folders.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "folder-empty";
+        empty.textContent = "No folders added yet.";
+        folderList.appendChild(empty);
+        return;
+      }
+
+      folders.forEach((folder) => {
+        const row = document.createElement("div");
+        row.className = "folder-row";
+
+        const isStale = !freshFolderIds.has(folder.id);
+
+        if (isStale) {
+          row.classList.add("folder-app-stale");
+        }
+
+        const info = document.createElement("div");
+        info.className = "folder-info";
+
+        const name = document.createElement("div");
+        name.className = "folder-name";
+        name.textContent = folder.name;
+
+        const meta = document.createElement("div");
+        meta.className = "folder-meta";
+
+        const appCount = folder.appIds ? folder.appIds.length : 0;
+
+        meta.textContent =
+          `${appCount} app${appCount === 1 ? "" : "s"}` +
+          (isStale ? " · link expired, refresh" : "");
+
+        info.appendChild(name);
+        info.appendChild(meta);
+
+        const actions = document.createElement("div");
+        actions.className = "folder-actions";
+
+        const refreshButton = document.createElement("button");
+        refreshButton.type = "button";
+        refreshButton.className = "icon-button";
+        refreshButton.textContent = "↻";
+        refreshButton.setAttribute("aria-label", `Refresh ${folder.name}`);
+
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className = "icon-button delete";
+        deleteButton.textContent = "×";
+        deleteButton.setAttribute("aria-label", `Remove ${folder.name}`);
+
+        refreshButton.addEventListener("click", () => {
+          pendingFolderAction = { type: "refresh", folderId: folder.id };
+          folderPickerInput.value = "";
+          folderPickerInput.click();
+        });
+
+        deleteButton.addEventListener("click", () => {
+          deleteFolder(folder.id);
+        });
+
+        actions.appendChild(refreshButton);
+        actions.appendChild(deleteButton);
+
+        row.appendChild(info);
+        row.appendChild(actions);
+
+        folderList.appendChild(row);
+      });
+    }
+
+    function openProfileModal() {
+      activateProfileTab(loadLastProfileTab() || "appearanceTab");
+      renderProfileList();
+      renderFolderList();
+      deleteProfileButton.disabled = state.profiles.length <= 1;
+      openModal(profileModal);
+    }
+
+    function openRenameProfileModal() {
+      const profile = getActiveProfile();
+
+      renameProfileInput.value = profile.name;
+      returnToProfileModal = true;
+
+      openModal(renameProfileModal);
+
+      setTimeout(() => {
+        renameProfileInput.focus();
+        renameProfileInput.select();
+      }, 50);
+    }
+
+    function renameActiveProfile(event) {
+      event.preventDefault();
+
+      const name = renameProfileInput.value.trim();
+
+      if (!name) {
+        showToast("Profile name cannot be empty.");
+        renameProfileInput.focus();
+        return;
+      }
+
+      const profile = getActiveProfile();
+      profile.name = name;
+
+      saveState();
+      renderProfile();
+
+      closeModal(renameProfileModal);
+      showToast("Profile renamed.");
+
+      if (returnToProfileModal) {
+        returnToProfileManagement();
+      }
+    }
+
+    function cancelRenameProfile() {
+      closeModal(renameProfileModal);
+
+      if (returnToProfileModal) {
+        returnToProfileManagement();
+      }
+    }
+
+    function openAddProfileModal() {
+      profileNameInput.value = "";
+      returnToProfileModal = true;
+
+      openModal(addProfileModal);
+
+      setTimeout(() => {
+        profileNameInput.focus();
+      }, 50);
+    }
+
+    function createProfile(event) {
+      event.preventDefault();
+
+      const name = profileNameInput.value.trim();
+
+      if (!name) {
+        showToast("Profile name cannot be empty.");
+        profileNameInput.focus();
+        return;
+      }
+
+      state.profiles.push({
+        name,
+        apps: [],
+        folders: []
+      });
+
+      state.activeProfile = state.profiles.length - 1;
+
+      saveState();
+      renderProfile();
+
+      closeModal(addProfileModal);
+      showToast(`Created ${name}.`);
+
+      if (returnToProfileModal) {
+        returnToProfileManagement();
+      }
+    }
+
+    function cancelAddProfile() {
+      closeModal(addProfileModal);
+
+      if (returnToProfileModal) {
+        returnToProfileManagement();
+      }
+    }
+
+    function openDeleteProfileModal() {
+      if (state.profiles.length <= 1) {
+        showToast("You cannot delete the only profile.");
+        return;
+      }
+
+      const activeProfile = getActiveProfile();
+
+      deleteProfileMessage.textContent =
+        `Delete "${activeProfile.name}"? This profile and all of its apps will be permanently deleted.`;
+
+      returnToProfileModal = true;
+
+      openModal(deleteProfileModal);
+
+      setTimeout(() => {
+        confirmDeleteProfileButton.focus();
+      }, 50);
+    }
+
+    function cancelDeleteProfile() {
+      closeModal(deleteProfileModal);
+
+      if (returnToProfileModal) {
+        returnToProfileManagement();
+      }
+    }
+
+    function deleteCurrentProfile() {
+      if (state.profiles.length <= 1) {
+        closeModal(deleteProfileModal);
+        showToast("You cannot delete the only profile.");
+        return;
+      }
+
+      const deletedProfile = getActiveProfile();
+
+      state.profiles.splice(state.activeProfile, 1);
+
+      if (state.activeProfile >= state.profiles.length) {
+        state.activeProfile = state.profiles.length - 1;
+      }
+
+      saveState();
+      renderProfile();
+
+      closeModal(deleteProfileModal);
+      showToast(`Deleted ${deletedProfile.name}.`);
+
+      if (returnToProfileModal) {
+        returnToProfileManagement();
+      }
+    }
+
+    function exportData() {
+      const profile = getActiveProfile();
+
+      const exportData = {
+        name: profile.name,
+        /* Folder-generated apps use session-only blob URLs, so they're
+           excluded from export — they wouldn't work in another session. */
+        apps: profile.apps.filter((app) => !app.sourceFolderId)
+      };
+
+      const data = JSON.stringify(exportData, null, 2);
+
+      const blob = new Blob([data], {
+        type: "application/json"
+      });
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download =
+        `${profile.name
+          .trim()
+          .replace(/[^a-z0-9]+/gi, "-")
+          .replace(/^-+|-+$/g, "")
+          .toLowerCase() || "profile"}.json`;
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      URL.revokeObjectURL(url);
+
+      showToast(`${profile.name} exported.`);
+    }
+
+    function importData(file) {
+      if (!file) {
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(reader.result);
+
+          if (!isValidProfile(parsed)) {
+            throw new Error("Invalid profile data.");
+          }
+
+          const activeProfile = getActiveProfile();
+
+          activeProfile.name = parsed.name;
+          activeProfile.apps = parsed.apps;
+          activeProfile.folders = [];
+
+          freshFolderIds.clear();
+
+          saveState();
+          renderProfile();
+
+          showToast(`${activeProfile.name} imported.`);
+        } catch (error) {
+          showToast("Invalid profile JSON.");
+        }
+
+        importInput.value = "";
+      };
+
+      reader.onerror = () => {
+        showToast("Unable to read the file.");
+        importInput.value = "";
+      };
+
+      reader.readAsText(file);
+    }
+
+    function showToast(message) {
+      clearTimeout(toastTimer);
+
+      toast.textContent = message;
+      toast.classList.add("show");
+
+      toastTimer = setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2400);
+    }
+
+    document.querySelectorAll(".theme-option").forEach((button) => {
+      button.addEventListener("click", () => {
+        setTheme(button.getAttribute("data-theme-option"));
+      });
+    });
+
+    function activateProfileTab(tabId) {
+      document.querySelectorAll(".tab-button").forEach((btn) =>
+        btn.classList.toggle("active", btn.getAttribute("data-tab") === tabId)
+      );
+
+      document.querySelectorAll(".tab-panel").forEach((panel) =>
+        panel.classList.toggle("active", panel.id === tabId)
+      );
+
+      saveLastProfileTab(tabId);
+    }
+
+    document.querySelectorAll(".tab-button").forEach((button) => {
+      button.addEventListener("click", () => {
+        activateProfileTab(button.getAttribute("data-tab"));
+      });
+    });
+
+    profileSelect.addEventListener("change", () => {
+      const index = Number(profileSelect.value);
+
+      if (Number.isNaN(index) || index === state.activeProfile) {
+        return;
+      }
+
+      state.activeProfile = index;
+
+      saveState();
+      renderProfile();
+
+      showToast(`Switched to ${getActiveProfile().name}.`);
+    });
+
+    addFolderButton.addEventListener("click", () => {
+      pendingFolderAction = { type: "add" };
+      folderPickerInput.value = "";
+      folderPickerInput.click();
+    });
+
+    folderPickerInput.addEventListener("change", (event) => {
+      const files = event.target.files;
+
+      if (!files || files.length === 0) {
+        pendingFolderAction = null;
+        return;
+      }
+
+      if (pendingFolderAction && pendingFolderAction.type === "refresh") {
+        refreshFolder(pendingFolderAction.folderId, files);
+      } else {
+        addFolder(files);
+      }
+
+      pendingFolderAction = null;
+      folderPickerInput.value = "";
+    });
+
+    profileButton.addEventListener(
+      "click",
+      openProfileModal
+    );
+
+    addAppButton.addEventListener(
+      "click",
+      openAddAppModal
+    );
+
+    appForm.addEventListener(
+      "submit",
+      saveApp
+    );
+
+    renameProfileButton.addEventListener(
+      "click",
+      openRenameProfileModal
+    );
+
+    renameProfileForm.addEventListener(
+      "submit",
+      renameActiveProfile
+    );
+
+    cancelRenameProfileButton.addEventListener(
+      "click",
+      cancelRenameProfile
+    );
+
+    closeRenameProfileButton.addEventListener(
+      "click",
+      cancelRenameProfile
+    );
+
+    addProfileButton.addEventListener(
+      "click",
+      openAddProfileModal
+    );
+
+    addProfileForm.addEventListener(
+      "submit",
+      createProfile
+    );
+
+    cancelAddProfileButton.addEventListener(
+      "click",
+      cancelAddProfile
+    );
+
+    closeAddProfileButton.addEventListener(
+      "click",
+      cancelAddProfile
+    );
+
+    deleteProfileButton.addEventListener(
+      "click",
+      openDeleteProfileModal
+    );
+
+    confirmDeleteProfileButton.addEventListener(
+      "click",
+      deleteCurrentProfile
+    );
+
+    cancelDeleteProfileButton.addEventListener(
+      "click",
+      cancelDeleteProfile
+    );
+
+    closeDeleteProfileButton.addEventListener(
+      "click",
+      cancelDeleteProfile
+    );
+
+    /* Delete App modal controls */
+    confirmDeleteAppButton.addEventListener(
+      "click",
+      confirmDeleteApp
+    );
+
+    cancelDeleteAppButton.addEventListener(
+      "click",
+      cancelDeleteApp
+    );
+
+    closeDeleteAppButton.addEventListener(
+      "click",
+      cancelDeleteApp
+    );
+
+    exportButton.addEventListener(
+      "click",
+      exportData
+    );
+
+    importButton.addEventListener(
+      "click",
+      () => {
+        importInput.click();
+      }
+    );
+
+    importInput.addEventListener(
+      "change",
+      (event) => {
+        importData(event.target.files[0]);
+      }
+    );
+
+    document
+      .querySelectorAll("[data-close-modal]")
+      .forEach((button) => {
+        button.addEventListener("click", () => {
+          const modalId =
+            button.getAttribute("data-close-modal");
+
+          const modal =
+            document.getElementById(modalId);
+
+          if (!modal) {
+            return;
+          }
+
+          if (modal === renameProfileModal) {
+            cancelRenameProfile();
+            return;
+          }
+
+          if (modal === addProfileModal) {
+            cancelAddProfile();
+            return;
+          }
+
+          if (modal === deleteProfileModal) {
+            cancelDeleteProfile();
+            return;
+          }
+
+          closeModal(modal);
+        });
+      });
+
+    document
+      .querySelectorAll(".modal-backdrop")
+      .forEach((backdrop) => {
+        backdrop.addEventListener("mousedown", (event) => {
+          if (event.target !== backdrop) {
+            return;
+          }
+
+          if (backdrop === renameProfileModal) {
+            cancelRenameProfile();
+            return;
+          }
+
+          if (backdrop === addProfileModal) {
+            cancelAddProfile();
+            return;
+          }
+
+          if (backdrop === deleteProfileModal) {
+            cancelDeleteProfile();
+            return;
+          }
+
+          if (backdrop === deleteAppModal) {
+            cancelDeleteApp();
+            return;
+          }
+
+          closeModal(backdrop);
+        });
+      });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key.toLowerCase() !== "s") {
+        return;
+      }
+
+      if (event.ctrlKey || event.metaKey || event.altKey) {
+        return;
+      }
+
+      const target = event.target;
+      const tag = target && target.tagName;
+
+      if (
+        tag === "INPUT" ||
+        tag === "TEXTAREA" ||
+        tag === "SELECT" ||
+        (target && target.isContentEditable)
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      openProfileModal();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape") {
+        return;
+      }
+
+      const openModals = Array.from(
+        document.querySelectorAll(".modal-backdrop.open")
+      );
+
+      const modal = openModals[openModals.length - 1];
+
+      if (!modal) {
+        return;
+      }
+
+      if (modal === renameProfileModal) {
+        cancelRenameProfile();
+        return;
+      }
+
+      if (modal === addProfileModal) {
+        cancelAddProfile();
+        return;
+      }
+
+      if (modal === deleteProfileModal) {
+        cancelDeleteProfile();
+        return;
+      }
+
+      if (modal === deleteAppModal) {
+        cancelDeleteApp();
+        return;
+      }
+
+      closeModal(modal);
+    });
+
+    async function restoreFolderApps() {
+      for (const profile of state.profiles) {
+        if (!Array.isArray(profile.apps)) {
+          continue;
+        }
+
+        for (const app of profile.apps) {
+          if (!app.sourceFolderId) {
+            continue;
+          }
+
+          try {
+            const content = await idbGetFile(app.id);
+
+            if (typeof content === "string") {
+              app.path = makeHtmlBlobUrl(content);
+              freshFolderIds.add(app.sourceFolderId);
+            }
+          } catch (error) {
+            console.warn(`Unable to restore file for ${app.name}.`, error);
+          }
+        }
+      }
+    }
+
+    (async () => {
+      await restoreFolderApps();
+      renderProfile();
+    })();
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker
+          .register("service-worker.js")
+          .catch((error) => {
+            console.warn("Service worker registration failed.", error);
+          });
+      });
+    }
+  </script>
+</body>
+</html>
