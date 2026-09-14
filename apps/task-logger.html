@@ -611,17 +611,21 @@
     color: var(--ink);
     white-space: nowrap;
   }
-  .edit-btn, .del-btn {
+  .edit-btn, .del-btn, .dup-btn {
     all: unset;
     cursor: pointer;
     color: var(--ink-faint);
     font-size: 14px;
     line-height: 1;
     padding: 2px 4px;
+    display: inline-flex;
+    align-items: center;
   }
   .del-btn { font-size: 16px; }
   .edit-btn:hover { color: var(--accent); }
   .del-btn:hover { color: var(--danger); }
+  .dup-btn:hover { color: var(--accent); }
+  .dup-btn svg { display: block; width: 14px; height: 14px; }
 
   .empty-state {
     padding: 48px 0;
@@ -2153,10 +2157,10 @@
   }
 
   // ---------- Add entry modal ----------
-  async function openAddModal(template){
+  async function openAddModal(template, dateOverride){
     await mountAddModalTagGroups();
 
-    document.getElementById('addDateInput').value = ymdUTC(todayUTC());
+    document.getElementById('addDateInput').value = dateOverride || ymdUTC(todayUTC());
     document.getElementById('addProjectInput').value = template ? (template.project || '') : '';
     document.getElementById('addTaskInput').value = template ? (template.task || '') : '';
     document.getElementById('addHoursInput').value = (template && template.hours) ? template.hours : '';
@@ -2167,6 +2171,10 @@
     switchAddModalTab('new');
     document.getElementById('addModalOverlay').style.display = 'flex';
     document.getElementById('addProjectInput').focus();
+  }
+
+  function openDuplicateModal(entry){
+    openAddModal(entry, entry.date);
   }
 
   function closeAddModal(){
@@ -2400,6 +2408,7 @@
           <div class="entry-side">
             <span class="entry-hrs">${formatHours(e.hours)} h</span>
             <button class="edit-btn" data-id="${e.id}" aria-label="Edit entry">&#9998;</button>
+            <button class="dup-btn" data-id="${e.id}" aria-label="Duplicate entry"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
             <button class="del-btn" data-id="${e.id}" data-date="${e.date}" aria-label="Delete entry">&times;</button>
           </div>
         </div>
@@ -2420,6 +2429,12 @@
       btn.addEventListener('click', () => {
         const entry = weekEntries.find(e => e.id === btn.getAttribute('data-id'));
         if(entry) startEdit(entry);
+      });
+    });
+    body.querySelectorAll('.dup-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const entry = weekEntries.find(e => e.id === btn.getAttribute('data-id'));
+        if(entry) openDuplicateModal(entry);
       });
     });
     body.querySelectorAll('.del-btn').forEach(btn => {
@@ -2496,6 +2511,7 @@
         <div class="entry-side">
           <span class="entry-hrs">${formatHours(e.hours)} h</span>
           <button class="edit-btn" data-id="${e.id}" aria-label="Edit entry">&#9998;</button>
+          <button class="dup-btn" data-id="${e.id}" aria-label="Duplicate entry"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
           <button class="del-btn" data-id="${e.id}" data-date="${e.date}" aria-label="Delete entry">&times;</button>
         </div>
       </div>
@@ -2505,6 +2521,12 @@
       btn.addEventListener('click', () => {
         const entry = matches.find(e => e.id === btn.getAttribute('data-id'));
         if(entry) startEdit(entry);
+      });
+    });
+    body.querySelectorAll('.dup-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const entry = matches.find(e => e.id === btn.getAttribute('data-id'));
+        if(entry) openDuplicateModal(entry);
       });
     });
     body.querySelectorAll('.del-btn').forEach(btn => {
