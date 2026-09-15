@@ -181,6 +181,20 @@
       min-width: 0;
     }
 
+    /* Grid mode only: centers the greeting horizontally by default, then
+       slides it back to the normal (list-mode) left position on hover or
+       while the search bar is in use. List mode never gets this class,
+       so its layout is unaffected. */
+    .greeting-row.grid-centered .greeting-text {
+      transform: translateX(var(--greeting-center-offset, 0px));
+      transition: transform var(--transition);
+    }
+
+    .greeting-row.grid-centered:hover .greeting-text,
+    .greeting-row.grid-centered.search-open .greeting-text {
+      transform: translateX(0);
+    }
+
     .search-wrap {
       flex-grow: 0;
       flex-shrink: 1;
@@ -1203,6 +1217,12 @@
         margin-top: 10px;
       }
 
+      /* No hover on touch, and no room to center-then-slide — keep it
+         plain and left-aligned like list mode always is. */
+      .greeting-row.grid-centered .greeting-text {
+        transform: none;
+      }
+
       .app-tile-actions {
         width: 52px;
         opacity: 1;
@@ -1256,7 +1276,7 @@
   <main class="dashboard">
     <div class="container">
       <div class="greeting-row" id="greetingRow">
-        <div class="greeting-text">
+        <div class="greeting-text" id="greetingText">
           <div class="eyebrow">WELCOME BACK</div>
           <h1 class="greeting" id="greeting">Hello Juan!</h1>
         </div>
@@ -2077,6 +2097,7 @@
 
     const profileButton = $("profileButton");
     const greetingRow = $("greetingRow");
+    const greetingText = $("greetingText");
     const greeting = $("greeting");
     const searchWrap = $("searchWrap");
     const searchInput = $("searchInput");
@@ -2166,6 +2187,9 @@
       addAppButton.textContent = layoutPrefs.gridMode ? "+" : "+ Add App";
       addAppButton.setAttribute("aria-label", "Add app");
 
+      greetingRow.classList.toggle("grid-centered", layoutPrefs.gridMode);
+      updateGreetingCenterOffset();
+
       document.documentElement.style.setProperty(
         "--grid-icon-size",
         `${layoutPrefs.iconSize}px`
@@ -2187,6 +2211,24 @@
       columnsSlider.value = layoutPrefs.columns;
       columnsValue.textContent = String(layoutPrefs.columns);
     }
+
+    /* Grid mode centers the greeting by translating it right from its
+       natural (list-mode) left position. The offset needed depends on
+       both the row's current width and the greeting text's own width
+       (which varies with the profile name), so it's computed in JS
+       rather than being a fixed CSS value. */
+    function updateGreetingCenterOffset() {
+      const rowWidth = greetingRow.getBoundingClientRect().width;
+      const textWidth = greetingText.getBoundingClientRect().width;
+      const offset = Math.max(0, (rowWidth - textWidth) / 2);
+
+      greetingRow.style.setProperty(
+        "--greeting-center-offset",
+        `${offset}px`
+      );
+    }
+
+    window.addEventListener("resize", updateGreetingCenterOffset);
 
     applyLayoutPrefs();
 
@@ -2357,6 +2399,7 @@
       const profile = getActiveProfile();
 
       greeting.textContent = `Hello ${profile.name}!`;
+      updateGreetingCenterOffset();
 
       const initials = profile.name
         .trim()
@@ -3431,6 +3474,7 @@
         searchInput.value.trim().length > 0;
 
       searchWrap.classList.toggle("active", shouldShow);
+      greetingRow.classList.toggle("search-open", shouldShow);
     }
 
     searchInput.addEventListener("input", () => {
