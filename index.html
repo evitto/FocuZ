@@ -213,9 +213,14 @@
       opacity: 1;
     }
 
+    .search-field {
+      position: relative;
+      width: 100%;
+    }
+
     .search-input {
       width: 100%;
-      padding: 9px 14px;
+      padding: 9px 32px 9px 14px;
       border: 1px solid var(--gray-2);
       border-radius: var(--radius);
       background: var(--white);
@@ -232,6 +237,32 @@
 
     .search-input::placeholder {
       color: var(--gray-3);
+    }
+
+    .search-clear {
+      position: absolute;
+      top: 50%;
+      right: 5px;
+      transform: translateY(-50%);
+      width: 22px;
+      height: 22px;
+      border: none;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--gray-3);
+      font-size: 15px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition:
+        background-color var(--transition),
+        color var(--transition);
+    }
+
+    .search-clear:hover {
+      background: var(--gray-1);
+      color: var(--black);
     }
 
     .apps {
@@ -1282,13 +1313,25 @@
         </div>
 
         <div class="search-wrap" id="searchWrap">
-          <input
-            type="text"
-            class="search-input"
-            id="searchInput"
-            placeholder="Search apps…"
-            aria-label="Search apps"
-          />
+          <div class="search-field">
+            <input
+              type="text"
+              class="search-input"
+              id="searchInput"
+              placeholder="Search apps…"
+              aria-label="Search apps"
+            />
+
+            <button
+              type="button"
+              class="search-clear"
+              id="searchClear"
+              aria-label="Clear search"
+              hidden
+            >
+              ×
+            </button>
+          </div>
         </div>
       </div>
 
@@ -2101,6 +2144,7 @@
     const greeting = $("greeting");
     const searchWrap = $("searchWrap");
     const searchInput = $("searchInput");
+    const searchClear = $("searchClear");
     const appList = $("appList");
     const addAppButton = $("addAppButton");
     const gridModeToggle = $("gridModeToggle");
@@ -2419,6 +2463,12 @@
     }
 
     function renderApps() {
+      /* Rebuilding the list can remove the tile the cursor is currently
+         over (e.g. search filtering it out), which doesn't reliably fire
+         mouseleave. Force-close any lingering tooltip up front so it never
+         gets stranded pointing at an app that's no longer there. */
+      hideTileTooltip();
+
       const profile = getActiveProfile();
       const query = searchQuery.trim().toLowerCase();
 
@@ -3477,14 +3527,29 @@
       greetingRow.classList.toggle("search-open", shouldShow);
     }
 
+    function updateSearchClearVisibility() {
+      searchClear.hidden = searchInput.value.length === 0;
+    }
+
     searchInput.addEventListener("input", () => {
       searchQuery = searchInput.value;
       updateSearchVisibility();
+      updateSearchClearVisibility();
       renderApps();
     });
 
     searchInput.addEventListener("focus", updateSearchVisibility);
     searchInput.addEventListener("blur", updateSearchVisibility);
+
+    searchClear.addEventListener("click", () => {
+      searchInput.value = "";
+      searchQuery = "";
+      searchInput.focus();
+
+      updateSearchClearVisibility();
+      updateSearchVisibility();
+      renderApps();
+    });
 
     function activateProfileTab(tabId) {
       document.querySelectorAll(".tab-button").forEach((btn) =>
