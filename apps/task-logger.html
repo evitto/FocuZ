@@ -615,6 +615,10 @@
     background: #f1f1ee;
     color: var(--ink-soft);
   }
+  .chip.day {
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
   .entry-side {
     display: flex;
     align-items: center;
@@ -1459,6 +1463,12 @@
         <div class="tag-grid" id="modalActivityGrid"></div>
       </div>
 
+      <div class="field tag-group">
+        <label>Day type</label>
+        <input type="text" class="tag-search" id="modalDayTypeSearch" placeholder="Search day type tags">
+        <div class="tag-grid" id="modalDayTypeGrid"></div>
+      </div>
+
       <div class="add-row">
         <button class="add-btn" id="modalSaveBtn">Save changes</button>
         <button type="button" class="link-btn" id="modalSaveAsTemplateBtn">Save as template</button>
@@ -1527,6 +1537,12 @@
           <label>Type of activity</label>
           <input type="text" class="tag-search" id="addActivitySearch" placeholder="Search activity tags">
           <div class="tag-grid" id="addActivityGrid"></div>
+        </div>
+
+        <div class="field tag-group">
+          <label>Day type</label>
+          <input type="text" class="tag-search" id="addDayTypeSearch" placeholder="Search day type tags">
+          <div class="tag-grid" id="addDayTypeGrid"></div>
         </div>
       </div>
     </div>
@@ -1597,6 +1613,12 @@
         <div class="tag-grid" id="templateActivityGrid"></div>
       </div>
 
+      <div class="field tag-group">
+        <label>Day type</label>
+        <input type="text" class="tag-search" id="templateDayTypeSearch" placeholder="Search day type tags">
+        <div class="tag-grid" id="templateDayTypeGrid"></div>
+      </div>
+
       <div class="add-row">
         <button class="add-btn" id="templateSaveBtn">Save template</button>
         <button type="button" class="link-btn" id="templateCancelBtn">Cancel</button>
@@ -1636,9 +1658,9 @@
     "Revision & modification","Sheet arrangement","Publishing & exporting",
     "Clash detection","Coordination / collaboration","Updating QA/QC log",
     "Presentation","Compilation","Checking","Auditing",
-    "Meeting / email correspondence","Training",
-    "Annual leave","Sick leave","Public holiday"
+    "Meeting / email correspondence","Training"
   ];
+  const DAY_TYPES = ["Regular day","Annual leave","Sick leave","Public holiday"];
   const LEAVE_TAGS = ["Annual leave","Sick leave","Public holiday"];
   const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
@@ -2118,28 +2140,37 @@
   async function mountModalTagGroups(){
     resetContainer('modalFileTypeGrid');
     resetContainer('modalActivityGrid');
+    resetContainer('modalDayTypeGrid');
     resetContainer('modalFileTypeSearch');
     resetContainer('modalActivitySearch');
+    resetContainer('modalDayTypeSearch');
     await setupTagGroup('modalFileTypeGrid', FILE_TYPES, 'ft-modal', 'tags:fileType', 'modalFileTypeSearch');
     await setupTagGroup('modalActivityGrid', ACTIVITIES, 'act-modal', 'tags:activity', 'modalActivitySearch');
+    await setupTagGroup('modalDayTypeGrid', DAY_TYPES, 'dt-modal', 'tags:dayType', 'modalDayTypeSearch');
   }
 
   async function mountAddModalTagGroups(){
     resetContainer('addFileTypeGrid');
     resetContainer('addActivityGrid');
+    resetContainer('addDayTypeGrid');
     resetContainer('addFileTypeSearch');
     resetContainer('addActivitySearch');
+    resetContainer('addDayTypeSearch');
     await setupTagGroup('addFileTypeGrid', FILE_TYPES, 'ft-add', 'tags:fileType', 'addFileTypeSearch');
     await setupTagGroup('addActivityGrid', ACTIVITIES, 'act-add', 'tags:activity', 'addActivitySearch');
+    await setupTagGroup('addDayTypeGrid', DAY_TYPES, 'dt-add', 'tags:dayType', 'addDayTypeSearch');
   }
 
   async function mountTemplateTagGroups(){
     resetContainer('templateFileTypeGrid');
     resetContainer('templateActivityGrid');
+    resetContainer('templateDayTypeGrid');
     resetContainer('templateFileTypeSearch');
     resetContainer('templateActivitySearch');
+    resetContainer('templateDayTypeSearch');
     await setupTagGroup('templateFileTypeGrid', FILE_TYPES, 'ft-template', 'tags:fileType', 'templateFileTypeSearch');
     await setupTagGroup('templateActivityGrid', ACTIVITIES, 'act-template', 'tags:activity', 'templateActivitySearch');
+    await setupTagGroup('templateDayTypeGrid', DAY_TYPES, 'dt-template', 'tags:dayType', 'templateDayTypeSearch');
   }
 
   // ---------- Projects ----------
@@ -2273,6 +2304,7 @@
     document.getElementById('addOtHoursInput').value = (template && template.otHours) ? template.otHours : '';
     tagGroupControllers['ft-add'].setSelected(template ? (template.fileTypes || []) : []);
     tagGroupControllers['act-add'].setSelected(template ? (template.activities || []) : []);
+    tagGroupControllers['dt-add'].setSelected((template && template.dayTypes && template.dayTypes.length) ? template.dayTypes : ['Regular day']);
 
     document.getElementById('addModalMsg').textContent = '';
     switchAddModalTab('new');
@@ -2306,6 +2338,7 @@
     document.getElementById('addOtHoursInput').value = template.otHours ? template.otHours : '';
     tagGroupControllers['ft-add'].setSelected(template.fileTypes || []);
     tagGroupControllers['act-add'].setSelected(template.activities || []);
+    tagGroupControllers['dt-add'].setSelected((template.dayTypes && template.dayTypes.length) ? template.dayTypes : ['Regular day']);
   }
 
   function collectAddFormAsTemplatePrefill(){
@@ -2318,7 +2351,8 @@
       hours: hoursRaw ? parseFloat(hoursRaw) : null,
       otHours: otRaw ? parseFloat(otRaw) : null,
       fileTypes: getSelected('ft-add'),
-      activities: getSelected('act-add')
+      activities: getSelected('act-add'),
+      dayTypes: getSelected('dt-add')
     };
   }
 
@@ -2336,6 +2370,7 @@
           <div class="chips">
             ${(t.fileTypes || []).map(x => `<span class="chip">${escapeHtml(x)}</span>`).join('')}
             ${(t.activities || []).map(x => `<span class="chip act">${escapeHtml(x)}</span>`).join('')}
+            ${(t.dayTypes || []).filter(x => x !== 'Regular day').map(x => `<span class="chip day">${escapeHtml(x)}</span>`).join('')}
           </div>
         </div>
         <div class="entry-side"><span class="use-label">Use ›</span></div>
@@ -2373,6 +2408,7 @@
 
     const fileTypes = getSelected('ft-add');
     const activities = getSelected('act-add');
+    const dayTypes = getSelected('dt-add');
 
     const [y, m, d] = dateVal.split('-').map(Number);
     const entryYear = y, entryMonth = m - 1;
@@ -2380,7 +2416,7 @@
     const entry = {
       id: Date.now() + '-' + Math.random().toString(36).slice(2,7),
       date: dateVal,
-      project, designStage, fileTypes, activities, task,
+      project, designStage, fileTypes, activities, dayTypes, task,
       hours: Math.round(hours * 100) / 100,
       otHours: Math.round(otHours * 100) / 100
     };
@@ -2414,6 +2450,7 @@
     document.getElementById('modalOtHoursInput').value = entry.otHours ? entry.otHours : '';
     tagGroupControllers['ft-modal'].setSelected(entry.fileTypes || []);
     tagGroupControllers['act-modal'].setSelected(entry.activities || []);
+    tagGroupControllers['dt-modal'].setSelected((entry.dayTypes && entry.dayTypes.length) ? entry.dayTypes : ['Regular day']);
 
     const [oy, om] = entry.date.split('-').map(Number);
     modalEditingContext = { id: entry.id, originalYear: oy, originalMonth: om - 1 };
@@ -2438,7 +2475,8 @@
       hours: hoursRaw ? parseFloat(hoursRaw) : null,
       otHours: otRaw ? parseFloat(otRaw) : null,
       fileTypes: getSelected('ft-modal'),
-      activities: getSelected('act-modal')
+      activities: getSelected('act-modal'),
+      dayTypes: getSelected('dt-modal')
     };
   }
 
@@ -2470,13 +2508,14 @@
 
     const fileTypes = getSelected('ft-modal');
     const activities = getSelected('act-modal');
+    const dayTypes = getSelected('dt-modal');
 
     const [y, m, d] = dateVal.split('-').map(Number);
     const newYear = y, newMonth = m - 1;
 
     const updatedEntry = {
       id: modalEditingContext.id,
-      date: dateVal, project, designStage, fileTypes, activities, task,
+      date: dateVal, project, designStage, fileTypes, activities, dayTypes, task,
       hours: Math.round(hours * 100) / 100,
       otHours: Math.round(otHours * 100) / 100
     };
@@ -2564,6 +2603,7 @@
             <div class="chips">
               ${e.fileTypes.map(t => `<span class="chip">${escapeHtml(t)}</span>`).join('')}
               ${e.activities.map(t => `<span class="chip act">${escapeHtml(t)}</span>`).join('')}
+              ${(e.dayTypes || []).filter(t => t !== 'Regular day').map(t => `<span class="chip day">${escapeHtml(t)}</span>`).join('')}
             </div>
           </div>
           <div class="entry-side">
@@ -2669,6 +2709,7 @@
           <div class="chips">
             ${e.fileTypes.map(t => `<span class="chip">${escapeHtml(t)}</span>`).join('')}
             ${e.activities.map(t => `<span class="chip act">${escapeHtml(t)}</span>`).join('')}
+            ${(e.dayTypes || []).filter(t => t !== 'Regular day').map(t => `<span class="chip day">${escapeHtml(t)}</span>`).join('')}
           </div>
         </div>
         <div class="entry-side">
@@ -2794,6 +2835,7 @@
   async function exportCSV(){
     const fileTypeCols = await getMergedTagList(FILE_TYPES, 'tags:fileType');
     const activityCols = await getMergedTagList(ACTIVITIES, 'tags:activity');
+    const dayTypeCols = await getMergedTagList(DAY_TYPES, 'tags:dayType');
 
     const keys = await storage.list('entries:');
     let allEntries = [];
@@ -2812,7 +2854,8 @@
       'Date', 'Action By', 'Project', 'Design Stage', 'Task',
       ...fileTypeCols,
       ...activityCols,
-      'No. of Hours', 'No. of OT Hours', 'Total Man Hours', 'Remarks'
+      'No. of Hours', 'No. of OT Hours', 'Total Man Hours', 'Remarks',
+      ...dayTypeCols
     ];
 
     const rows = allEntries.map(e => {
@@ -2828,6 +2871,7 @@
       row.push(e.otHours ? formatHours(e.otHours) : '');
       row.push(formatHours(dayTotals[e.date] || 0));
       row.push('');
+      dayTypeCols.forEach(col => row.push((e.dayTypes || []).includes(col) ? 'y' : ''));
       return row;
     });
 
@@ -2910,6 +2954,7 @@
 
     const fileTypeList = await getMergedTagList(FILE_TYPES, 'tags:fileType');
     const activityList = await getMergedTagList(ACTIVITIES, 'tags:activity');
+    const dayTypeList = await getMergedTagList(DAY_TYPES, 'tags:dayType');
 
     const tagHeaders = headers
       .map((h, i) => ({ h, i }))
@@ -2917,10 +2962,12 @@
 
     const fileTypeColIdx = [];
     const activityColIdx = [];
+    const dayTypeColIdx = [];
     const unrecognized = new Set();
     tagHeaders.forEach(({ h, i }) => {
       if(fileTypeList.some(f => f.toLowerCase() === h.toLowerCase())) fileTypeColIdx.push({ h, i });
       else if(activityList.some(a => a.toLowerCase() === h.toLowerCase())) activityColIdx.push({ h, i });
+      else if(dayTypeList.some(d => d.toLowerCase() === h.toLowerCase())) dayTypeColIdx.push({ h, i });
       else unrecognized.add(h);
     });
 
@@ -2949,13 +2996,14 @@
 
       const fileTypes = fileTypeColIdx.filter(({ i }) => (cols[i] || '').trim() !== '').map(({ h }) => h);
       const activities = activityColIdx.filter(({ i }) => (cols[i] || '').trim() !== '').map(({ h }) => h);
+      const dayTypes = dayTypeColIdx.filter(({ i }) => (cols[i] || '').trim() !== '').map(({ h }) => h);
 
       const [y, m] = dateVal.split('-').map(Number);
       const mk = monthKey(y, m - 1);
       if(!byMonth[mk]) byMonth[mk] = [];
       byMonth[mk].push({
         id: Date.now() + '-' + Math.random().toString(36).slice(2,7) + '-' + r,
-        date: dateVal, project, designStage, task, fileTypes, activities, hours, otHours
+        date: dateVal, project, designStage, task, fileTypes, activities, dayTypes, hours, otHours
       });
       if(project) newProjects.add(project);
     }
@@ -2965,7 +3013,7 @@
     for(const mk of Object.keys(byMonth)){
       const [y, m] = mk.slice('entries:'.length).split('-').map(Number);
       const existing = await loadMonthEntries(y, m - 1);
-      const sigOf = e => [e.date, e.project, e.designStage || '', e.task, e.hours, e.otHours || 0, (e.fileTypes||[]).slice().sort().join('|'), (e.activities||[]).slice().sort().join('|')].join('::');
+      const sigOf = e => [e.date, e.project, e.designStage || '', e.task, e.hours, e.otHours || 0, (e.fileTypes||[]).slice().sort().join('|'), (e.activities||[]).slice().sort().join('|'), (e.dayTypes||[]).slice().sort().join('|')].join('::');
       const existingSigs = new Set(existing.map(sigOf));
 
       const toAdd = [];
@@ -3090,6 +3138,7 @@
     document.getElementById('templateOtHoursInput').value = (source && source.otHours) ? source.otHours : '';
     tagGroupControllers['ft-template'].setSelected(source ? (source.fileTypes || []) : []);
     tagGroupControllers['act-template'].setSelected(source ? (source.activities || []) : []);
+    tagGroupControllers['dt-template'].setSelected(source ? (source.dayTypes || []) : []);
 
     document.getElementById('templateModalMsg').textContent = '';
     document.getElementById('templateModalOverlay').style.display = 'flex';
@@ -3120,16 +3169,17 @@
 
     const fileTypes = getSelected('ft-template');
     const activities = getSelected('act-template');
+    const dayTypes = getSelected('dt-template');
 
     if(templateEditingId){
       const idx = templates.findIndex(t => t.id === templateEditingId);
       if(idx > -1){
-        templates[idx] = { id: templateEditingId, name, project, designStage, task, fileTypes, activities, hours, otHours };
+        templates[idx] = { id: templateEditingId, name, project, designStage, task, fileTypes, activities, dayTypes, hours, otHours };
       }
     } else {
       templates.push({
         id: Date.now() + '-' + Math.random().toString(36).slice(2,7),
-        name, project, designStage, task, fileTypes, activities, hours, otHours
+        name, project, designStage, task, fileTypes, activities, dayTypes, hours, otHours
       });
     }
 
@@ -3163,6 +3213,7 @@
           <div class="chips">
             ${(t.fileTypes || []).map(x => `<span class="chip">${escapeHtml(x)}</span>`).join('')}
             ${(t.activities || []).map(x => `<span class="chip act">${escapeHtml(x)}</span>`).join('')}
+            ${(t.dayTypes || []).filter(x => x !== 'Regular day').map(x => `<span class="chip day">${escapeHtml(x)}</span>`).join('')}
           </div>
         </div>
         <div class="entry-side">
@@ -3224,6 +3275,7 @@
       task: t.task || '',
       fileTypes: t.fileTypes || [],
       activities: t.activities || [],
+      dayTypes: (t.dayTypes && t.dayTypes.length) ? t.dayTypes : ['Regular day'],
       hours: t.hours ? Math.round(t.hours * 100) / 100 : 0,
       otHours: t.otHours ? Math.round(t.otHours * 100) / 100 : 0
     };
@@ -3511,10 +3563,13 @@
       const dayEntries = entries.filter(e => e && e.date === key);
       const taskCount = dayEntries.length;
       const hours = dayEntries.reduce((sum, e) => sum + Number(e.hours || 0), 0);
-      const leaveTypes = LEAVE_TAGS.filter(tag => dayEntries.some(e => (e.activities || []).includes(tag)));
-      const d = new Date(`${key}T00:00:00Z`);
-      const readableDate = d.toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric', timeZone:'UTC'});
-      return { readableDate, taskCount, hours, leaveTypes };
+      const otHours = dayEntries.reduce((sum, e) => sum + Number(e.otHours || 0), 0);
+      const leaveTypes = LEAVE_TAGS.filter(tag => dayEntries.some(e => (e.dayTypes || []).includes(tag)));
+      const [yy, mm, dd] = key.split('-').map(Number);
+      const utcD = new Date(Date.UTC(yy, mm - 1, dd));
+      const weekInfo = isoWeekInfo(utcD);
+      const readableDate = utcD.toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric', timeZone:'UTC'});
+      return { readableDate, week: weekInfo.week, taskCount, hours, otHours, leaveTypes };
     }
 
     function positionDayDetails(clientX, clientY){
@@ -3539,10 +3594,11 @@
         ? `<div class="heatmap-hover-leave">${details.leaveTypes.map(x => `<span>${escapeHtml(x)}</span>`).join('')}</div>`
         : '';
       hoverDetail.innerHTML = `
-        <div class="heatmap-hover-date">${escapeHtml(details.readableDate)}</div>
+        <div class="heatmap-hover-date">${escapeHtml(details.readableDate)} - Week ${details.week}</div>
         <div class="heatmap-hover-stats">
           <span><strong>${details.taskCount}</strong> ${details.taskCount === 1 ? 'task' : 'tasks'}</span>
           <span><strong>${formatHours(details.hours)}</strong> ${details.hours === 1 ? 'hour' : 'hours'}</span>
+          ${details.otHours ? `<span><strong>${formatHours(details.otHours)}</strong> OT hrs</span>` : ''}
         </div>
         ${leaveHtml}`;
       hoverDetail.classList.add('visible');
@@ -3655,7 +3711,7 @@
 
   function renderLeaveCards(entries){
     document.getElementById('leaveCards').innerHTML = LEAVE_TAGS.map(tag => {
-      const matching = entries.filter(e => (e.activities || []).includes(tag));
+      const matching = entries.filter(e => (e.dayTypes || []).includes(tag));
       const hrs = matching.reduce((s,e) => s + entryTotalHours(e), 0);
       return `<div class="leave-card">
         <div class="leave-card-label">${escapeHtml(tag)}</div>
@@ -3679,14 +3735,22 @@
       matched = entries.filter(e => e.project === bookFilter.key);
     }
 
-    const displayLabel = (bookFilter.type === 'trend' && /^\d{4}-\d{2}-\d{2}$/.test(label))
-      ? new Date(`${label}T00:00:00Z`).toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric', timeZone:'UTC'})
-      : label;
+    const isDayFilter = bookFilter.type === 'trend' && /^\d{4}-\d{2}-\d{2}$/.test(label);
+    let displayLabel = label;
+    let weekPart = '';
+    if(isDayFilter){
+      const [yy, mm, dd] = label.split('-').map(Number);
+      const utcD = new Date(Date.UTC(yy, mm - 1, dd));
+      displayLabel = utcD.toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric', timeZone:'UTC'});
+      weekPart = ` · Week ${isoWeekInfo(utcD).week}`;
+    }
     const selectionHours = matched.reduce((sum, e) => sum + Number(e.hours || 0), 0);
-    const selectionLeave = LEAVE_TAGS.filter(tag => matched.some(e => (e.activities || []).includes(tag)));
+    const selectionOtHours = matched.reduce((sum, e) => sum + Number(e.otHours || 0), 0);
+    const selectionLeave = LEAVE_TAGS.filter(tag => matched.some(e => (e.dayTypes || []).includes(tag)));
+    const otPart = selectionOtHours ? ` · ${formatHours(selectionOtHours)} OT hrs` : '';
     const selectionTitle = bookFilter.type === 'trend'
-      ? `${displayLabel} · ${matched.length} ${matched.length === 1 ? 'task' : 'tasks'} · ${formatHours(selectionHours)} ${selectionHours === 1 ? 'hour' : 'hours'}`
-      : `Selection · ${matched.length} ${matched.length === 1 ? 'task' : 'tasks'} · ${formatHours(selectionHours)} ${selectionHours === 1 ? 'hour' : 'hours'}`;
+      ? `${displayLabel}${weekPart} · ${matched.length} ${matched.length === 1 ? 'task' : 'tasks'} · ${formatHours(selectionHours)} ${selectionHours === 1 ? 'hour' : 'hours'}${otPart}`
+      : `Selection · ${matched.length} ${matched.length === 1 ? 'task' : 'tasks'} · ${formatHours(selectionHours)} ${selectionHours === 1 ? 'hour' : 'hours'}${otPart}`;
     document.getElementById('filterLabel').textContent = selectionTitle;
     const list = document.getElementById('filterList');
     const leaveHtml = selectionLeave.length
@@ -3701,7 +3765,7 @@
             <div class="proj">${escapeHtml(e.project)}<span class="filter-date">${escapeHtml(e.date)}</span></div>
             <div class="task">${escapeHtml(e.task)}</div>
           </div>
-          <div class="entry-side"><span class="entry-hrs">${formatHours(e.hours)} h</span></div>
+          <div class="entry-side"><span class="entry-hrs">${formatHours(e.hours)} h${e.otHours ? '<span class="ot-badge">+' + formatHours(e.otHours) + ' OT</span>' : ''}</span></div>
         </div>
       `).join('')}`;
     }
