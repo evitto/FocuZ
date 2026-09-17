@@ -243,6 +243,23 @@
   .suggestions div:hover { background: var(--accent-soft); color: var(--accent); }
 
   /* ---------- Tag pills ---------- */
+  .tag-group-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 10px;
+  }
+  .tag-group-head label {
+    margin-bottom: 0;
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+  .tag-group-head .tag-search {
+    flex: 1;
+    max-width: 240px;
+    margin-bottom: 0;
+  }
   .tag-search {
     width: 100%;
     border: none;
@@ -293,13 +310,17 @@
     color: var(--accent);
     font-weight: 500;
   }
-  .tag-add, .tag-remove {
+  .tag-add, .tag-remove, .tag-edit-trigger {
     border-style: dashed;
     color: var(--ink-faint);
-    min-width: 34px;
+    min-width: 38px;
     text-align: center;
   }
   .tag-add:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .tag-edit-trigger:hover {
     color: var(--accent);
     border-color: var(--accent);
   }
@@ -316,6 +337,33 @@
     color: var(--danger);
     font-weight: 500;
     text-decoration: line-through;
+  }
+  .tag.edit-mode {
+    cursor: pointer;
+  }
+  .tag.edit-mode:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .tag.halftone {
+    opacity: 0.4;
+  }
+  .tag-tick {
+    all: unset;
+    cursor: pointer;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.3;
+    flex: 0 0 auto;
+  }
+  .tag-tick.on { opacity: 1; }
+  .tag-edit-form {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 4px 6px 4px 14px;
   }
   .tag-add-form {
     display: inline-flex;
@@ -1452,20 +1500,26 @@
       </div>
 
       <div class="field tag-group">
-        <label>File type</label>
-        <input type="text" class="tag-search" id="modalFileTypeSearch" placeholder="Search file type tags">
+        <div class="tag-group-head">
+          <label>File type</label>
+          <input type="text" class="tag-search" id="modalFileTypeSearch" placeholder="Search file type tags">
+        </div>
         <div class="tag-grid" id="modalFileTypeGrid"></div>
       </div>
 
       <div class="field tag-group">
-        <label>Type of activity</label>
-        <input type="text" class="tag-search" id="modalActivitySearch" placeholder="Search activity tags">
+        <div class="tag-group-head">
+          <label>Type of activity</label>
+          <input type="text" class="tag-search" id="modalActivitySearch" placeholder="Search activity tags">
+        </div>
         <div class="tag-grid" id="modalActivityGrid"></div>
       </div>
 
       <div class="field tag-group">
-        <label>Day type</label>
-        <input type="text" class="tag-search" id="modalDayTypeSearch" placeholder="Search day type tags">
+        <div class="tag-group-head">
+          <label>Day type</label>
+          <input type="text" class="tag-search" id="modalDayTypeSearch" placeholder="Search day type tags">
+        </div>
         <div class="tag-grid" id="modalDayTypeGrid"></div>
       </div>
 
@@ -1528,20 +1582,26 @@
         </div>
 
         <div class="field tag-group">
-          <label>File type</label>
-          <input type="text" class="tag-search" id="addFileTypeSearch" placeholder="Search file type tags">
+          <div class="tag-group-head">
+            <label>File type</label>
+            <input type="text" class="tag-search" id="addFileTypeSearch" placeholder="Search file type tags">
+          </div>
           <div class="tag-grid" id="addFileTypeGrid"></div>
         </div>
 
         <div class="field tag-group">
-          <label>Type of activity</label>
-          <input type="text" class="tag-search" id="addActivitySearch" placeholder="Search activity tags">
+          <div class="tag-group-head">
+            <label>Type of activity</label>
+            <input type="text" class="tag-search" id="addActivitySearch" placeholder="Search activity tags">
+          </div>
           <div class="tag-grid" id="addActivityGrid"></div>
         </div>
 
         <div class="field tag-group">
-          <label>Day type</label>
-          <input type="text" class="tag-search" id="addDayTypeSearch" placeholder="Search day type tags">
+          <div class="tag-group-head">
+            <label>Day type</label>
+            <input type="text" class="tag-search" id="addDayTypeSearch" placeholder="Search day type tags">
+          </div>
           <div class="tag-grid" id="addDayTypeGrid"></div>
         </div>
       </div>
@@ -1602,20 +1662,26 @@
       </div>
 
       <div class="field tag-group">
-        <label>File type</label>
-        <input type="text" class="tag-search" id="templateFileTypeSearch" placeholder="Search file type tags">
+        <div class="tag-group-head">
+          <label>File type</label>
+          <input type="text" class="tag-search" id="templateFileTypeSearch" placeholder="Search file type tags">
+        </div>
         <div class="tag-grid" id="templateFileTypeGrid"></div>
       </div>
 
       <div class="field tag-group">
-        <label>Type of activity</label>
-        <input type="text" class="tag-search" id="templateActivitySearch" placeholder="Search activity tags">
+        <div class="tag-group-head">
+          <label>Type of activity</label>
+          <input type="text" class="tag-search" id="templateActivitySearch" placeholder="Search activity tags">
+        </div>
         <div class="tag-grid" id="templateActivityGrid"></div>
       </div>
 
       <div class="field tag-group">
-        <label>Day type</label>
-        <input type="text" class="tag-search" id="templateDayTypeSearch" placeholder="Search day type tags">
+        <div class="tag-group-head">
+          <label>Day type</label>
+          <input type="text" class="tag-search" id="templateDayTypeSearch" placeholder="Search day type tags">
+        </div>
         <div class="tag-grid" id="templateDayTypeGrid"></div>
       </div>
 
@@ -1661,7 +1727,6 @@
     "Meeting / email correspondence","Training"
   ];
   const DAY_TYPES = ["Regular day","Annual leave","Sick leave","Public holiday"];
-  const LEAVE_TAGS = ["Annual leave","Sick leave","Public holiday"];
   const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
   // ---------- Storage layer ----------
@@ -1795,6 +1860,7 @@
   let searchDebounceTimer = null;
   let templates = [];
   let templateEditingId = null;
+  let displayableDayTypes = ["Annual leave","Sick leave","Public holiday"]; // refreshed from storage at init and after tag edits
 
   function formatHours(n){ return (Math.round(n * 100) / 100).toString(); }
   function entryTotalHours(e){ return (e.hours || 0) + (e.otHours || 0); }
@@ -1823,6 +1889,7 @@
 
     await loadProjects();
     await loadTemplates();
+    await refreshDisplayableDayTypes();
     setupProjectAutocomplete('addProjectInput', 'addProjectSuggestions');
     setupProjectAutocomplete('modalProjectInput', 'modalProjectSuggestions');
     setupProjectAutocomplete('templateProjectInput', 'templateProjectSuggestions');
@@ -1936,6 +2003,19 @@
       if(document.getElementById('dataModalOverlay').style.display !== 'none') closeDataModal();
     });
 
+    document.addEventListener('keydown', (e) => {
+      if(e.key.toLowerCase() !== 'c') return;
+      if(e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
+      const activeTag = (document.activeElement && document.activeElement.tagName || '').toLowerCase();
+      if(activeTag === 'input' || activeTag === 'textarea' || activeTag === 'select') return;
+      if(document.activeElement && document.activeElement.isContentEditable) return;
+      const modalIds = ['editModalOverlay','addModalOverlay','templateModalOverlay','logDateModalOverlay','dataModalOverlay'];
+      const aModalIsOpen = modalIds.some(id => document.getElementById(id).style.display !== 'none');
+      if(aModalIsOpen) return;
+      e.preventDefault();
+      openAddModal();
+    });
+
     // Book mode wiring
     document.querySelectorAll('.range-tab').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1954,7 +2034,11 @@
   }
 
   // ---------- Tag groups (add / remove custom tags) ----------
-  async function setupTagGroup(containerId, defaults, group, storageKey, searchInputId){
+  async function setupTagGroup(containerId, defaults, group, storageKey, searchInputId, options){
+    options = options || {};
+    const supportsDisplay = !!options.supportsDisplay;
+    const entryField = FIELD_BY_STORAGE_KEY[storageKey];
+
     const container = document.getElementById(containerId);
     let extras = [];
     let removed = [];
@@ -1971,10 +2055,29 @@
       if(Array.isArray(parsed)) removed = parsed;
     }
 
-    let mode = 'normal'; // 'normal' | 'add' | 'remove'
+    const hiddenKey = storageKey + ':hidden';
+    let hidden = [];
+    if(supportsDisplay){
+      const hiddenRes = await storage.get(hiddenKey);
+      if(hiddenRes && hiddenRes.value){
+        const parsed = safeParse(hiddenRes.value, null);
+        hidden = Array.isArray(parsed) ? parsed : DEFAULT_HIDDEN_DAY_TYPES.slice();
+      } else {
+        hidden = DEFAULT_HIDDEN_DAY_TYPES.slice();
+      }
+    }
+
+    let mode = 'normal'; // 'normal' | 'add' | 'remove' | 'edit'
     let marked = new Set();
     let searchQuery = '';
+    let newTagDisplayable = true;
+    let editingTag = null;
+    let editDisplayable = true;
     groupSelections[group] = new Set();
+
+    function isHidden(tag){
+      return hidden.some(h => h.toLowerCase() === tag.toLowerCase());
+    }
 
     function allItems(){
       const merged = defaults.slice();
@@ -2000,18 +2103,36 @@
         tagsHtml = `<div class="tag-search-empty">No matching tags.</div>`;
       } else {
         tagsHtml = items.map(label => {
+          if(mode === 'edit' && editingTag !== null && editingTag.toLowerCase() === label.toLowerCase()){
+            const tickHtml = supportsDisplay
+              ? `<button type="button" class="tag-tick${editDisplayable ? ' on' : ''}" data-action="edit-toggle-display" title="${editDisplayable ? 'Shown in summaries' : 'Hidden from summaries'}"></button>`
+              : '';
+            return `<span class="tag-add-form tag-edit-form">
+              <input type="text" class="tag-input-inline tag-edit-input" value="${escapeHtml(label)}">
+              ${tickHtml}
+              <button type="button" class="tag-ok" data-action="edit-ok" data-value="${escapeHtml(label)}">OK</button>
+              <button type="button" class="tag-cancel" data-action="edit-cancel">Cancel</button>
+            </span>`;
+          }
           if(mode === 'remove'){
             const isMarked = marked.has(label);
             return `<button type="button" class="tag remove-mode${isMarked ? ' marked' : ''}" data-value="${escapeHtml(label)}">${escapeHtml(label)}</button>`;
           }
-          return `<button type="button" class="tag${sel.has(label) ? ' selected' : ''}" data-group="${group}" data-value="${escapeHtml(label)}">${escapeHtml(label)}</button>`;
+          if(mode === 'edit'){
+            return `<button type="button" class="tag edit-mode${supportsDisplay && isHidden(label) ? ' halftone' : ''}" data-value="${escapeHtml(label)}">${escapeHtml(label)}</button>`;
+          }
+          return `<button type="button" class="tag${sel.has(label) ? ' selected' : ''}${supportsDisplay && isHidden(label) ? ' halftone' : ''}" data-group="${group}" data-value="${escapeHtml(label)}">${escapeHtml(label)}</button>`;
         }).join('');
       }
 
       let controlsHtml;
       if(mode === 'add'){
+        const tickHtml = supportsDisplay
+          ? `<button type="button" class="tag-tick${newTagDisplayable ? ' on' : ''}" data-action="toggle-new-display" title="${newTagDisplayable ? 'Shown in summaries' : 'Hidden from summaries'}"></button>`
+          : '';
         controlsHtml = `<span class="tag-add-form">
           <input type="text" class="tag-input-inline" placeholder="New tag">
+          ${tickHtml}
           <button type="button" class="tag-ok" data-action="add-ok">OK</button>
           <button type="button" class="tag-cancel" data-action="add-cancel">Cancel</button>
         </span>`;
@@ -2020,8 +2141,13 @@
           <button type="button" class="tag-ok" data-action="remove-ok">OK</button>
           <button type="button" class="tag-cancel" data-action="remove-cancel">Cancel</button>
         </span>`;
+      } else if(mode === 'edit'){
+        controlsHtml = `<span class="tag-add-form">
+          <button type="button" class="tag-cancel" data-action="edit-done">Done</button>
+        </span>`;
       } else {
-        controlsHtml = `<button type="button" class="tag tag-add" data-action="enter-add" aria-label="Add a tag">+</button>
+        controlsHtml = `<button type="button" class="tag tag-edit-trigger" data-action="enter-edit" aria-label="Edit tags">&#9998;</button>
+          <button type="button" class="tag tag-add" data-action="enter-add" aria-label="Add a tag">+</button>
           <button type="button" class="tag tag-remove" data-action="enter-remove" aria-label="Remove tags">&times;</button>`;
       }
 
@@ -2031,11 +2157,17 @@
         const input = container.querySelector('.tag-input-inline');
         if(input) input.focus();
       }
+      if(mode === 'edit' && editingTag !== null){
+        const input = container.querySelector('.tag-edit-input');
+        if(input){ input.focus(); input.select(); }
+      }
     }
 
     async function addTag(rawValue){
       const value = rawValue.trim();
+      const displayable = newTagDisplayable;
       mode = 'normal';
+      newTagDisplayable = true;
       if(!value){ render(); return; }
 
       const items = allItems();
@@ -2049,6 +2181,12 @@
         await storage.set(remKey, JSON.stringify(removed));
       }
 
+      if(supportsDisplay && !found && !displayable){
+        if(!isHidden(value)) hidden.push(value);
+        await storage.set(hiddenKey, JSON.stringify(hidden));
+        await refreshDisplayableDayTypes();
+      }
+
       groupSelections[group].add(found || value);
       render();
     }
@@ -2060,9 +2198,56 @@
       });
       if(marked.size){
         await storage.set(remKey, JSON.stringify(removed));
+        if(supportsDisplay) await refreshDisplayableDayTypes();
       }
       mode = 'normal';
       marked = new Set();
+      render();
+    }
+
+    async function commitEdit(oldValue, newValueRaw){
+      const newValue = newValueRaw.trim();
+      if(!newValue){ editingTag = null; mode = 'edit'; render(); return; }
+
+      const items = allItems();
+      const collision = items.find(m => m.toLowerCase() === newValue.toLowerCase() && m.toLowerCase() !== oldValue.toLowerCase());
+      if(collision){
+        editingTag = null;
+        render();
+        return;
+      }
+
+      const renamed = newValue.toLowerCase() !== oldValue.toLowerCase();
+
+      if(renamed){
+        const extraIdx = extras.findIndex(x => x.toLowerCase() === oldValue.toLowerCase());
+        if(extraIdx > -1){
+          extras[extraIdx] = newValue;
+        } else {
+          if(!removed.some(r => r.toLowerCase() === oldValue.toLowerCase())) removed.push(oldValue);
+          extras.push(newValue);
+        }
+        await storage.set(storageKey, JSON.stringify(extras));
+        await storage.set(remKey, JSON.stringify(removed));
+      }
+
+      if(supportsDisplay){
+        hidden = hidden.filter(h => h.toLowerCase() !== oldValue.toLowerCase() && h.toLowerCase() !== newValue.toLowerCase());
+        if(!editDisplayable) hidden.push(newValue);
+        await storage.set(hiddenKey, JSON.stringify(hidden));
+        await refreshDisplayableDayTypes();
+      }
+
+      if(groupSelections[group].has(oldValue)){
+        groupSelections[group].delete(oldValue);
+        groupSelections[group].add(newValue);
+      }
+
+      if(renamed && entryField){
+        await migrateTagRename(entryField, oldValue, newValue);
+      }
+
+      editingTag = null;
       render();
     }
 
@@ -2070,9 +2255,12 @@
       const actionBtn = e.target.closest('[data-action]');
       if(actionBtn){
         const action = actionBtn.getAttribute('data-action');
-        if(action === 'enter-add'){ mode = 'add'; render(); return; }
+        if(action === 'enter-add'){ mode = 'add'; newTagDisplayable = true; render(); return; }
         if(action === 'enter-remove'){ mode = 'remove'; marked = new Set(); render(); return; }
+        if(action === 'enter-edit'){ mode = 'edit'; editingTag = null; render(); return; }
+        if(action === 'edit-done'){ mode = 'normal'; editingTag = null; render(); return; }
         if(action === 'add-cancel'){ mode = 'normal'; render(); return; }
+        if(action === 'toggle-new-display'){ newTagDisplayable = !newTagDisplayable; render(); return; }
         if(action === 'add-ok'){
           const input = container.querySelector('.tag-input-inline');
           addTag(input ? input.value : '');
@@ -2080,6 +2268,14 @@
         }
         if(action === 'remove-cancel'){ mode = 'normal'; marked = new Set(); render(); return; }
         if(action === 'remove-ok'){ commitRemoval(); return; }
+        if(action === 'edit-cancel'){ editingTag = null; render(); return; }
+        if(action === 'edit-toggle-display'){ editDisplayable = !editDisplayable; render(); return; }
+        if(action === 'edit-ok'){
+          const oldValue = actionBtn.getAttribute('data-value');
+          const input = container.querySelector('.tag-edit-input');
+          commitEdit(oldValue, input ? input.value : oldValue);
+          return;
+        }
         return;
       }
 
@@ -2090,6 +2286,11 @@
         const val = tagBtn.getAttribute('data-value');
         if(marked.has(val)) marked.delete(val); else marked.add(val);
         tagBtn.classList.toggle('marked');
+      } else if(mode === 'edit'){
+        const val = tagBtn.getAttribute('data-value');
+        editingTag = val;
+        editDisplayable = supportsDisplay ? !isHidden(val) : true;
+        render();
       } else if(mode === 'normal'){
         const val = tagBtn.getAttribute('data-value');
         if(groupSelections[group].has(val)) groupSelections[group].delete(val); else groupSelections[group].add(val);
@@ -2098,9 +2299,15 @@
     });
 
     container.addEventListener('keydown', (e) => {
-      if(mode !== 'add' || !e.target.classList.contains('tag-input-inline')) return;
-      if(e.key === 'Enter'){ e.preventDefault(); addTag(e.target.value); }
-      else if(e.key === 'Escape'){ e.preventDefault(); mode = 'normal'; render(); }
+      if(mode === 'add' && e.target.classList.contains('tag-input-inline')){
+        if(e.key === 'Enter'){ e.preventDefault(); addTag(e.target.value); }
+        else if(e.key === 'Escape'){ e.preventDefault(); mode = 'normal'; render(); }
+        return;
+      }
+      if(mode === 'edit' && e.target.classList.contains('tag-edit-input')){
+        if(e.key === 'Enter'){ e.preventDefault(); commitEdit(editingTag, e.target.value); }
+        else if(e.key === 'Escape'){ e.preventDefault(); editingTag = null; render(); }
+      }
     });
 
     if(searchInputId){
@@ -2118,6 +2325,7 @@
       setSelected(values){
         mode = 'normal';
         marked = new Set();
+        editingTag = null;
         groupSelections[group] = new Set(values || []);
         render();
       }
@@ -2146,7 +2354,7 @@
     resetContainer('modalDayTypeSearch');
     await setupTagGroup('modalFileTypeGrid', FILE_TYPES, 'ft-modal', 'tags:fileType', 'modalFileTypeSearch');
     await setupTagGroup('modalActivityGrid', ACTIVITIES, 'act-modal', 'tags:activity', 'modalActivitySearch');
-    await setupTagGroup('modalDayTypeGrid', DAY_TYPES, 'dt-modal', 'tags:dayType', 'modalDayTypeSearch');
+    await setupTagGroup('modalDayTypeGrid', DAY_TYPES, 'dt-modal', 'tags:dayType', 'modalDayTypeSearch', { supportsDisplay: true });
   }
 
   async function mountAddModalTagGroups(){
@@ -2158,7 +2366,7 @@
     resetContainer('addDayTypeSearch');
     await setupTagGroup('addFileTypeGrid', FILE_TYPES, 'ft-add', 'tags:fileType', 'addFileTypeSearch');
     await setupTagGroup('addActivityGrid', ACTIVITIES, 'act-add', 'tags:activity', 'addActivitySearch');
-    await setupTagGroup('addDayTypeGrid', DAY_TYPES, 'dt-add', 'tags:dayType', 'addDayTypeSearch');
+    await setupTagGroup('addDayTypeGrid', DAY_TYPES, 'dt-add', 'tags:dayType', 'addDayTypeSearch', { supportsDisplay: true });
   }
 
   async function mountTemplateTagGroups(){
@@ -2170,7 +2378,7 @@
     resetContainer('templateDayTypeSearch');
     await setupTagGroup('templateFileTypeGrid', FILE_TYPES, 'ft-template', 'tags:fileType', 'templateFileTypeSearch');
     await setupTagGroup('templateActivityGrid', ACTIVITIES, 'act-template', 'tags:activity', 'templateActivitySearch');
-    await setupTagGroup('templateDayTypeGrid', DAY_TYPES, 'dt-template', 'tags:dayType', 'templateDayTypeSearch');
+    await setupTagGroup('templateDayTypeGrid', DAY_TYPES, 'dt-template', 'tags:dayType', 'templateDayTypeSearch', { supportsDisplay: true });
   }
 
   // ---------- Projects ----------
@@ -2201,7 +2409,7 @@
       box.classList.add('open');
     });
 
-    input.addEventListener('focus', () => {
+    input.addEventListener('click', () => {
       if(projects.length){
         box.innerHTML = projects.slice(0,8).map(p => `<div data-val="${escapeHtml(p)}">${escapeHtml(p)}</div>`).join('');
         box.classList.add('open');
@@ -2370,7 +2578,7 @@
           <div class="chips">
             ${(t.fileTypes || []).map(x => `<span class="chip">${escapeHtml(x)}</span>`).join('')}
             ${(t.activities || []).map(x => `<span class="chip act">${escapeHtml(x)}</span>`).join('')}
-            ${(t.dayTypes || []).filter(x => x !== 'Regular day').map(x => `<span class="chip day">${escapeHtml(x)}</span>`).join('')}
+            ${(t.dayTypes || []).filter(x => displayableDayTypes.includes(x)).map(x => `<span class="chip day">${escapeHtml(x)}</span>`).join('')}
           </div>
         </div>
         <div class="entry-side"><span class="use-label">Use ›</span></div>
@@ -2603,7 +2811,7 @@
             <div class="chips">
               ${e.fileTypes.map(t => `<span class="chip">${escapeHtml(t)}</span>`).join('')}
               ${e.activities.map(t => `<span class="chip act">${escapeHtml(t)}</span>`).join('')}
-              ${(e.dayTypes || []).filter(t => t !== 'Regular day').map(t => `<span class="chip day">${escapeHtml(t)}</span>`).join('')}
+              ${(e.dayTypes || []).filter(t => displayableDayTypes.includes(t)).map(t => `<span class="chip day">${escapeHtml(t)}</span>`).join('')}
             </div>
           </div>
           <div class="entry-side">
@@ -2709,7 +2917,7 @@
           <div class="chips">
             ${e.fileTypes.map(t => `<span class="chip">${escapeHtml(t)}</span>`).join('')}
             ${e.activities.map(t => `<span class="chip act">${escapeHtml(t)}</span>`).join('')}
-            ${(e.dayTypes || []).filter(t => t !== 'Regular day').map(t => `<span class="chip day">${escapeHtml(t)}</span>`).join('')}
+            ${(e.dayTypes || []).filter(t => displayableDayTypes.includes(t)).map(t => `<span class="chip day">${escapeHtml(t)}</span>`).join('')}
           </div>
         </div>
         <div class="entry-side">
@@ -2822,6 +3030,64 @@
       if(!merged.some(m => m.toLowerCase() === x.toLowerCase())) merged.push(x);
     });
     return merged.filter(item => !removed.some(r => r.toLowerCase() === item.toLowerCase()));
+  }
+
+  // ---------- Day Type "displayable" flag (controls Book Mode summaries) ----------
+  const DEFAULT_HIDDEN_DAY_TYPES = ["Regular day"];
+
+  async function getDisplayableDayTypes(){
+    const merged = await getMergedTagList(DAY_TYPES, 'tags:dayType');
+    let hidden = DEFAULT_HIDDEN_DAY_TYPES.slice();
+    const hiddenRes = await storage.get('tags:dayType:hidden');
+    if(hiddenRes && hiddenRes.value){
+      const parsed = safeParse(hiddenRes.value, null);
+      if(Array.isArray(parsed)) hidden = parsed;
+    }
+    return merged.filter(tag => !hidden.some(h => h.toLowerCase() === tag.toLowerCase()));
+  }
+
+  async function refreshDisplayableDayTypes(){
+    displayableDayTypes = await getDisplayableDayTypes();
+  }
+
+  // ---------- Rename a tag everywhere it's used ----------
+  const FIELD_BY_STORAGE_KEY = { 'tags:fileType': 'fileTypes', 'tags:activity': 'activities', 'tags:dayType': 'dayTypes' };
+
+  async function migrateTagRename(field, oldName, newName){
+    const keys = await storage.list('entries:');
+    for(const key of keys){
+      const parts = key.slice('entries:'.length).split('-').map(Number);
+      if(parts.length !== 2) continue;
+      const arr = await loadMonthEntries(parts[0], parts[1] - 1);
+      let changed = false;
+      arr.forEach(e => {
+        if(!e || !Array.isArray(e[field])) return;
+        const idx = e[field].findIndex(t => t.toLowerCase() === oldName.toLowerCase());
+        if(idx > -1){
+          const dupIdx = e[field].findIndex((t,i) => i !== idx && t.toLowerCase() === newName.toLowerCase());
+          if(dupIdx > -1){ e[field].splice(idx,1); } else { e[field][idx] = newName; }
+          changed = true;
+        }
+      });
+      if(changed) await saveMonthEntries(parts[0], parts[1] - 1, arr);
+    }
+
+    let tplChanged = false;
+    templates.forEach(t => {
+      if(!t || !Array.isArray(t[field])) return;
+      const idx = t[field].findIndex(x => x.toLowerCase() === oldName.toLowerCase());
+      if(idx > -1){
+        const dupIdx = t[field].findIndex((x,i) => i !== idx && x.toLowerCase() === newName.toLowerCase());
+        if(dupIdx > -1){ t[field].splice(idx,1); } else { t[field][idx] = newName; }
+        tplChanged = true;
+      }
+    });
+    if(tplChanged) await saveTemplatesToStorage();
+
+    if(searchActive) await runSearch();
+    else if(appMode === 'log') await renderWeek();
+    else if(appMode === 'book') await renderBookMode();
+    else if(appMode === 'templates') renderTemplates();
   }
 
   function csvEscape(value){
@@ -3213,7 +3479,7 @@
           <div class="chips">
             ${(t.fileTypes || []).map(x => `<span class="chip">${escapeHtml(x)}</span>`).join('')}
             ${(t.activities || []).map(x => `<span class="chip act">${escapeHtml(x)}</span>`).join('')}
-            ${(t.dayTypes || []).filter(x => x !== 'Regular day').map(x => `<span class="chip day">${escapeHtml(x)}</span>`).join('')}
+            ${(t.dayTypes || []).filter(x => displayableDayTypes.includes(x)).map(x => `<span class="chip day">${escapeHtml(x)}</span>`).join('')}
           </div>
         </div>
         <div class="entry-side">
@@ -3327,7 +3593,7 @@
     document.getElementById('bookMode').style.display = appMode === 'book' ? '' : 'none';
     document.getElementById('templatesMode').style.display = appMode === 'templates' ? '' : 'none';
     document.getElementById('roleText').textContent = MODE_ROLE_TEXT[appMode];
-    document.getElementById('openAddModalBtn').style.display = appMode === 'log' ? '' : 'none';
+    document.getElementById('openAddModalBtn').style.display = (appMode === 'log' || appMode === 'book') ? '' : 'none';
     document.getElementById('openTemplateModalBtn').style.display = appMode === 'templates' ? '' : 'none';
     document.querySelectorAll('.mode-dd-item').forEach(item => {
       item.classList.toggle('active', item.getAttribute('data-mode') === appMode);
@@ -3564,7 +3830,7 @@
       const taskCount = dayEntries.length;
       const hours = dayEntries.reduce((sum, e) => sum + Number(e.hours || 0), 0);
       const otHours = dayEntries.reduce((sum, e) => sum + Number(e.otHours || 0), 0);
-      const leaveTypes = LEAVE_TAGS.filter(tag => dayEntries.some(e => (e.dayTypes || []).includes(tag)));
+      const leaveTypes = displayableDayTypes.filter(tag => dayEntries.some(e => (e.dayTypes || []).includes(tag)));
       const [yy, mm, dd] = key.split('-').map(Number);
       const utcD = new Date(Date.UTC(yy, mm - 1, dd));
       const weekInfo = isoWeekInfo(utcD);
@@ -3710,7 +3976,7 @@
   }
 
   function renderLeaveCards(entries){
-    document.getElementById('leaveCards').innerHTML = LEAVE_TAGS.map(tag => {
+    document.getElementById('leaveCards').innerHTML = displayableDayTypes.map(tag => {
       const matching = entries.filter(e => (e.dayTypes || []).includes(tag));
       const hrs = matching.reduce((s,e) => s + entryTotalHours(e), 0);
       return `<div class="leave-card">
@@ -3746,7 +4012,7 @@
     }
     const selectionHours = matched.reduce((sum, e) => sum + Number(e.hours || 0), 0);
     const selectionOtHours = matched.reduce((sum, e) => sum + Number(e.otHours || 0), 0);
-    const selectionLeave = LEAVE_TAGS.filter(tag => matched.some(e => (e.dayTypes || []).includes(tag)));
+    const selectionLeave = displayableDayTypes.filter(tag => matched.some(e => (e.dayTypes || []).includes(tag)));
     const otPart = selectionOtHours ? ` · ${formatHours(selectionOtHours)} OT hrs` : '';
     const selectionTitle = bookFilter.type === 'trend'
       ? `${displayLabel}${weekPart} · ${matched.length} ${matched.length === 1 ? 'task' : 'tasks'} · ${formatHours(selectionHours)} ${selectionHours === 1 ? 'hour' : 'hours'}${otPart}`
