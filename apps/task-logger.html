@@ -114,7 +114,6 @@
   }
   .link-btn:hover { color: var(--accent); text-decoration: underline; }
   .link-btn.danger:hover { color: var(--danger); }
-  .dot-sep { color: var(--ink-faint); font-size: 12px; }
 
   .settings-action-btn {
     all: unset;
@@ -981,9 +980,23 @@
   }
   .heatmap-hover-leave span {
     font-size: 10px;
-    padding: 3px 6px;
-    border: 1px solid var(--line);
-    color: var(--ink-soft);
+    padding: 3px 8px;
+    border-radius: 10px;
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
+  .selection-leave {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .selection-leave span {
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 10px;
+    background: var(--danger-soft);
+    color: var(--danger);
   }
 
   .heatmap-cell {
@@ -1860,7 +1873,8 @@
   let searchDebounceTimer = null;
   let templates = [];
   let templateEditingId = null;
-  let displayableDayTypes = ["Annual leave","Sick leave","Public holiday"]; // refreshed from storage at init and after tag edits
+  let allDayTypes = ["Regular day","Annual leave","Sick leave","Public holiday"]; // every current Day Type tag (defaults + custom, minus deleted)
+  let displayableDayTypes = ["Annual leave","Sick leave","Public holiday"]; // only the ones shown in the heatmap hover's Leave/Holiday line
 
   function formatHours(n){ return (Math.round(n * 100) / 100).toString(); }
   function entryTotalHours(e){ return (e.hours || 0) + (e.otHours || 0); }
@@ -2578,7 +2592,7 @@
           <div class="chips">
             ${(t.fileTypes || []).map(x => `<span class="chip">${escapeHtml(x)}</span>`).join('')}
             ${(t.activities || []).map(x => `<span class="chip act">${escapeHtml(x)}</span>`).join('')}
-            ${(t.dayTypes || []).filter(x => displayableDayTypes.includes(x)).map(x => `<span class="chip day">${escapeHtml(x)}</span>`).join('')}
+            ${(t.dayTypes || []).map(x => `<span class="chip day">${escapeHtml(x)}</span>`).join('')}
           </div>
         </div>
         <div class="entry-side"><span class="use-label">Use ›</span></div>
@@ -2811,7 +2825,7 @@
             <div class="chips">
               ${e.fileTypes.map(t => `<span class="chip">${escapeHtml(t)}</span>`).join('')}
               ${e.activities.map(t => `<span class="chip act">${escapeHtml(t)}</span>`).join('')}
-              ${(e.dayTypes || []).filter(t => displayableDayTypes.includes(t)).map(t => `<span class="chip day">${escapeHtml(t)}</span>`).join('')}
+              ${(e.dayTypes || []).map(t => `<span class="chip day">${escapeHtml(t)}</span>`).join('')}
             </div>
           </div>
           <div class="entry-side">
@@ -2917,7 +2931,7 @@
           <div class="chips">
             ${e.fileTypes.map(t => `<span class="chip">${escapeHtml(t)}</span>`).join('')}
             ${e.activities.map(t => `<span class="chip act">${escapeHtml(t)}</span>`).join('')}
-            ${(e.dayTypes || []).filter(t => displayableDayTypes.includes(t)).map(t => `<span class="chip day">${escapeHtml(t)}</span>`).join('')}
+            ${(e.dayTypes || []).map(t => `<span class="chip day">${escapeHtml(t)}</span>`).join('')}
           </div>
         </div>
         <div class="entry-side">
@@ -2961,6 +2975,9 @@
     await storage.delete('tags:fileType:removed');
     await storage.delete('tags:activity');
     await storage.delete('tags:activity:removed');
+    await storage.delete('tags:dayType');
+    await storage.delete('tags:dayType:removed');
+    await storage.delete('tags:dayType:hidden');
 
     projects = [];
     templates = [];
@@ -2969,6 +2986,7 @@
     closeEditModal();
     closeAddModal();
     closeTemplateModal();
+    await refreshDisplayableDayTypes();
 
     await renderWeek();
     if(appMode === 'book') await renderBookMode();
@@ -3032,22 +3050,25 @@
     return merged.filter(item => !removed.some(r => r.toLowerCase() === item.toLowerCase()));
   }
 
-  // ---------- Day Type "displayable" flag (controls Book Mode summaries) ----------
+  // ---------- Day Type "displayable" flag ----------
+  // This only controls the Leave/Holiday line in the contribution heatmap's day-hover detail.
+  // It must NOT hide tags from entry list chips (Log Mode, Book Mode) or from the Leave &
+  // Holidays cards / selection summaries — those always show every non-"Regular day" tag.
   const DEFAULT_HIDDEN_DAY_TYPES = ["Regular day"];
 
-  async function getDisplayableDayTypes(){
-    const merged = await getMergedTagList(DAY_TYPES, 'tags:dayType');
+  async function refreshDisplayableDayTypes(){
+    allDayTypes = await getMergedTagList(DAY_TYPES, 'tags:dayType');
     let hidden = DEFAULT_HIDDEN_DAY_TYPES.slice();
     const hiddenRes = await storage.get('tags:dayType:hidden');
     if(hiddenRes && hiddenRes.value){
       const parsed = safeParse(hiddenRes.value, null);
       if(Array.isArray(parsed)) hidden = parsed;
     }
-    return merged.filter(tag => !hidden.some(h => h.toLowerCase() === tag.toLowerCase()));
+    displayableDayTypes = allDayTypes.filter(tag => !hidden.some(h => h.toLowerCase() === tag.toLowerCase()));
   }
 
-  async function refreshDisplayableDayTypes(){
-    displayableDayTypes = await getDisplayableDayTypes();
+  function leaveWorthyDayTypes(){
+    return allDayTypes.filter(tag => tag.toLowerCase() !== 'regular day');
   }
 
   // ---------- Rename a tag everywhere it's used ----------
@@ -3479,7 +3500,7 @@
           <div class="chips">
             ${(t.fileTypes || []).map(x => `<span class="chip">${escapeHtml(x)}</span>`).join('')}
             ${(t.activities || []).map(x => `<span class="chip act">${escapeHtml(x)}</span>`).join('')}
-            ${(t.dayTypes || []).filter(x => displayableDayTypes.includes(x)).map(x => `<span class="chip day">${escapeHtml(x)}</span>`).join('')}
+            ${(t.dayTypes || []).map(x => `<span class="chip day">${escapeHtml(x)}</span>`).join('')}
           </div>
         </div>
         <div class="entry-side">
@@ -3976,7 +3997,7 @@
   }
 
   function renderLeaveCards(entries){
-    document.getElementById('leaveCards').innerHTML = displayableDayTypes.map(tag => {
+    document.getElementById('leaveCards').innerHTML = leaveWorthyDayTypes().map(tag => {
       const matching = entries.filter(e => (e.dayTypes || []).includes(tag));
       const hrs = matching.reduce((s,e) => s + entryTotalHours(e), 0);
       return `<div class="leave-card">
@@ -4012,7 +4033,7 @@
     }
     const selectionHours = matched.reduce((sum, e) => sum + Number(e.hours || 0), 0);
     const selectionOtHours = matched.reduce((sum, e) => sum + Number(e.otHours || 0), 0);
-    const selectionLeave = displayableDayTypes.filter(tag => matched.some(e => (e.dayTypes || []).includes(tag)));
+    const selectionLeave = leaveWorthyDayTypes().filter(tag => matched.some(e => (e.dayTypes || []).includes(tag)));
     const otPart = selectionOtHours ? ` · ${formatHours(selectionOtHours)} OT hrs` : '';
     const selectionTitle = bookFilter.type === 'trend'
       ? `${displayLabel}${weekPart} · ${matched.length} ${matched.length === 1 ? 'task' : 'tasks'} · ${formatHours(selectionHours)} ${selectionHours === 1 ? 'hour' : 'hours'}${otPart}`
@@ -4030,6 +4051,11 @@
           <div class="entry-main">
             <div class="proj">${escapeHtml(e.project)}<span class="filter-date">${escapeHtml(e.date)}</span></div>
             <div class="task">${escapeHtml(e.task)}</div>
+            <div class="chips">
+              ${(e.fileTypes || []).map(t => `<span class="chip">${escapeHtml(t)}</span>`).join('')}
+              ${(e.activities || []).map(t => `<span class="chip act">${escapeHtml(t)}</span>`).join('')}
+              ${(e.dayTypes || []).map(t => `<span class="chip day">${escapeHtml(t)}</span>`).join('')}
+            </div>
           </div>
           <div class="entry-side"><span class="entry-hrs">${formatHours(e.hours)} h${e.otHours ? '<span class="ot-badge">+' + formatHours(e.otHours) + ' OT</span>' : ''}</span></div>
         </div>
