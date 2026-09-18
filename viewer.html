@@ -98,11 +98,13 @@
 
   <script>
     const THEME_KEY = "minimalWebAppDashboardTheme";
+    let savedTheme = "light";
 
     try {
-      const savedTheme = localStorage.getItem(THEME_KEY);
+      const stored = localStorage.getItem(THEME_KEY);
 
-      if (savedTheme === "dark" || savedTheme === "pink") {
+      if (stored === "dark" || stored === "pink") {
+        savedTheme = stored;
         document.documentElement.setAttribute("data-theme", savedTheme);
       }
     } catch (error) {
@@ -120,6 +122,29 @@
       const iframe = document.createElement("iframe");
       iframe.src = target;
       iframe.title = "App";
+
+      /* Pass FocuZ's current theme through to the embedded app, so an
+         app that supports data-theme follows the same Light/Dark/Pink
+         choice. Set on both <html> and <body> since different apps scope
+         their own theme selectors to one or the other; always set it
+         (rather than skipping on "light") so this wins over whatever the
+         app's own internal state was left on from a prior standalone run.
+         Only works for same-origin content (blob: URLs and our own
+         apps/ files) — a cross-origin page blocks this and throws, which
+         is fine, it just stays whatever theme that app already has. */
+      iframe.addEventListener("load", () => {
+        try {
+          const doc = iframe.contentDocument;
+          doc.documentElement.setAttribute("data-theme", savedTheme);
+
+          if (doc.body) {
+            doc.body.setAttribute("data-theme", savedTheme);
+          }
+        } catch (error) {
+          // Cross-origin (or otherwise inaccessible) — nothing to do.
+        }
+      });
+
       content.appendChild(iframe);
     }
   </script>

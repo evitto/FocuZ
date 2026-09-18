@@ -6,10 +6,12 @@ A minimal, single-file personal app launcher and dashboard. Add links to the too
 
 ## Features
 
-- **App launcher** — add, edit, delete, and drag-to-reorder a personal list of apps (name, description, link).
+- **App launcher** — add, edit, delete, and drag-to-reorder a personal list of apps (name, description, link). Switch between a list view and a grid view (square icon tiles with initials), with adjustable icon size and column count.
+- **Search** — hover the "Hello" greeting to reveal a search bar that filters apps live by name or description.
 - **Profiles** — keep separate sets of apps under different named profiles; switch between them from a dropdown.
 - **Folder import** — pick a local folder and FocuZ scans it for `.html` files, adding one launcher entry per file automatically (no manual entry needed). Content is saved to IndexedDB so the links keep working across reloads. Use **Refresh** on a folder row to re-scan it for changes.
-- **Themes** — Light, Dark, and Pink, picked from a segmented control in the Appearance tab. Saved and restored automatically.
+- **Bundled apps folder** — drop your own single-file HTML apps into `apps/`. Every app opens through `viewer.html`, which adds a "← FocuZ" return button and passes along the current theme automatically — no per-app editing needed.
+- **Themes** — Light, Dark, and Pink, picked from a segmented control in the Appearance tab. Saved and restored automatically, and passed through to bundled apps that support it.
 - **Import / Export** — back up or transfer a profile as a JSON file.
 - **Keyboard shortcut** — press `S` anywhere to open the Profile modal.
 - **Installable PWA** — add it to your home screen/desktop and use it offline, like a native app.
@@ -44,16 +46,21 @@ GitHub Pages serves over HTTPS automatically, which is required for the service 
 
 ```
 index.html              — the app itself (HTML, CSS, and JS in one file)
-manifest.json            — PWA manifest (name, icons, colors, display mode)
-service-worker.js        — caches the app shell for offline use
-LICENSE                  — MIT license
-README.md                — this file
+viewer.html               — wraps an app with the "← FocuZ" return button and passes theme through
+manifest.json             — PWA manifest (name, icons, colors, display mode)
+service-worker.js         — caches the app shell for offline use
+LICENSE                   — MIT license
+README.md                 — this file
 icons/
-  icon-192.png            — app icon (192×192)
-  icon-512.png            — app icon (512×512)
-  icon-512-maskable.png   — Android adaptive icon (safe-zone sized)
-  apple-touch-icon.png    — iOS home screen icon (180×180)
-  favicon-32.png          — browser tab icon
+  icon-192.png             — app icon (192×192)
+  icon-512.png             — app icon (512×512)
+  icon-512-maskable.png    — Android adaptive icon (safe-zone sized)
+  apple-touch-icon.png     — iOS home screen icon (180×180)
+  favicon-32.png           — browser tab icon
+apps/
+  your own single-file HTML apps live here — each one automatically gets
+  the return button and current theme applied via viewer.html, no editing
+  required
 ```
 
 ## How folder import works
