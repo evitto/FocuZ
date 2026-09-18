@@ -42,6 +42,22 @@
       --color-danger-bg: #3b1111;
     }
 
+    [data-theme="pink"] {
+      --color-bg: #fff0f5;
+      --color-surface: #fff0f5;
+      --color-surface-muted: #ffe4ec;
+
+      --color-text: #6b1d43;
+      --color-text-secondary: #b15c82;
+      --color-text-muted: #d98cae;
+
+      --color-border: #ffc2d9;
+      --color-border-strong: #d98cae;
+
+      --color-danger: #d1274a;
+      --color-danger-bg: #ffd9e3;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -1077,7 +1093,7 @@
       }
 
       const arcSize = (2 * Math.PI) / numItems;
-      const isDark = state.settings.darkMode;
+      const isDark = document.body.getAttribute("data-theme") === "dark";
       const colors = isDark ? segmentColorsDark : segmentColorsLight;
       const borderColor = getComputedStyle(document.body).getPropertyValue('--color-border').trim();
       const textColor = getComputedStyle(document.body).getPropertyValue('--color-text').trim();
@@ -1370,6 +1386,18 @@
     applyDarkMode(state.settings.darkMode);
     renderItems();
     renderHistory();
+
+    /* The canvas wheel is a bitmap, not live CSS — it only repaints when
+       drawWheel() runs. applyDarkMode() already calls that for the app's
+       own Settings toggle, but an external theme change (FocuZ's viewer,
+       via viewer.html) just sets the attribute directly, so watch for
+       that too and redraw when it happens. */
+    new MutationObserver(() => {
+      drawWheel();
+    }).observe(document.body, {
+      attributes: true,
+      attributeFilter: ["data-theme"]
+    });
   </script>
 </body>
 </html>

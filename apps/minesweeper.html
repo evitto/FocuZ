@@ -12,9 +12,47 @@
       --foreground: #111;
       --muted: #777;
       --cell: #fff;
+      --cell-hover: #ededed;
       --revealed: #e9e9e9;
       --border: #111;
       --success: #2f8f46;
+      --wrong-flag: #888;
+      --num-1: #111;
+      --num-2: #444;
+      --num-3: #666;
+      --num-4: #000;
+    }
+
+    :root[data-theme="dark"] {
+      --background: #171717;
+      --foreground: #f2f2f2;
+      --muted: #a8a8a8;
+      --cell: #171717;
+      --cell-hover: #232323;
+      --revealed: #262626;
+      --border: #f2f2f2;
+      --success: #3ecf6a;
+      --wrong-flag: #5a5a5a;
+      --num-1: #999999;
+      --num-2: #bbbbbb;
+      --num-3: #dddddd;
+      --num-4: #ffffff;
+    }
+
+    :root[data-theme="pink"] {
+      --background: #fff0f5;
+      --foreground: #6b1d43;
+      --muted: #b15c82;
+      --cell: #fff0f5;
+      --cell-hover: #ffd6e5;
+      --revealed: #ffe4ec;
+      --border: #6b1d43;
+      --success: #2f8f46;
+      --wrong-flag: #d98cae;
+      --num-1: #b15c82;
+      --num-2: #8a3f63;
+      --num-3: #6b1d43;
+      --num-4: #4a1230;
     }
 
     * {
@@ -34,6 +72,9 @@
       place-items: center;
       background: var(--background);
       color: var(--foreground);
+      transition:
+        background-color 150ms ease,
+        color 150ms ease;
       font-family:
         Inter,
         ui-sans-serif,
@@ -130,7 +171,7 @@
     }
 
     .cell:hover:not(.revealed) {
-      background: #ededed;
+      background: var(--cell-hover);
     }
 
     .cell:active:not(.revealed) {
@@ -147,8 +188,8 @@
     }
 
     .cell.mine {
-      background: #111;
-      color: #fff;
+      background: var(--foreground);
+      color: var(--background);
     }
 
     .cell.correct-flag {
@@ -157,20 +198,20 @@
     }
 
     .cell.wrong-flag {
-      background: #888;
+      background: var(--wrong-flag);
       color: #fff;
     }
 
     .number-1 {
-      color: #111;
+      color: var(--num-1);
     }
 
     .number-2 {
-      color: #444;
+      color: var(--num-2);
     }
 
     .number-3 {
-      color: #666;
+      color: var(--num-3);
     }
 
     .number-4,
@@ -178,7 +219,7 @@
     .number-6,
     .number-7,
     .number-8 {
-      color: #000;
+      color: var(--num-4);
     }
 
     .status {

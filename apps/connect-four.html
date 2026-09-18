@@ -7,6 +7,42 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='5' cy='12' r='3' fill='%23111'/%3E%3Ccircle cx='12.5' cy='12' r='3' fill='none' stroke='%23111' stroke-width='2'/%3E%3Ccircle cx='20' cy='12' r='3' fill='%23111'/%3E%3C/svg%3E">
 
 <style>
+  :root {
+    --bg: #fff;
+    --fg: #111;
+    --muted: #777;
+    --muted-2: #999;
+    --hover-fill: #f2f2f2;
+    --board-bg: #ddd;
+    --ai-piece: #777;
+    --status-text: #555;
+    --fg-hover: #333;
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #171717;
+    --fg: #f2f2f2;
+    --muted: #a8a8a8;
+    --muted-2: #8f8f8f;
+    --hover-fill: #262626;
+    --board-bg: #333333;
+    --ai-piece: #8f8f8f;
+    --status-text: #cfcfcf;
+    --fg-hover: #d9d9d9;
+  }
+
+  :root[data-theme="pink"] {
+    --bg: #fff0f5;
+    --fg: #6b1d43;
+    --muted: #b15c82;
+    --muted-2: #d98cae;
+    --hover-fill: #ffe4ec;
+    --board-bg: #ffc2d9;
+    --ai-piece: #b15c82;
+    --status-text: #8a3f63;
+    --fg-hover: #4a1230;
+  }
+
   * {
     box-sizing: border-box;
   }
@@ -17,9 +53,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #fff;
-    color: #111;
+    background: var(--bg);
+    color: var(--fg);
     font-family: Arial, sans-serif;
+    transition:
+      background-color 150ms ease,
+      color 150ms ease;
   }
 
   .game {
@@ -34,7 +73,7 @@
 
   .subtitle {
     margin-bottom: 18px;
-    color: #777;
+    color: var(--muted);
     font-size: 14px;
   }
 
@@ -47,21 +86,21 @@
 
   .mode {
     padding: 8px 15px;
-    border: 2px solid #111;
+    border: 2px solid var(--fg);
     border-radius: 7px;
-    background: #fff;
-    color: #111;
+    background: var(--bg);
+    color: var(--fg);
     font-size: 13px;
     cursor: pointer;
   }
 
   .mode:hover {
-    background: #f2f2f2;
+    background: var(--hover-fill);
   }
 
   .mode.active {
-    background: #111;
-    color: #fff;
+    background: var(--fg);
+    color: var(--bg);
   }
 
   .stats {
@@ -89,15 +128,15 @@
     grid-template-rows: repeat(6, 1fr);
     gap: 7px;
 
-    background: #ddd;
-    border: 3px solid #111;
+    background: var(--board-bg);
+    border: 3px solid var(--fg);
     border-radius: 12px;
   }
 
   .cell {
-    border: 2px solid #111;
+    border: 2px solid var(--fg);
     border-radius: 50%;
-    background: #fff;
+    background: var(--bg);
     cursor: pointer;
     transition:
       transform 0.12s,
@@ -106,47 +145,47 @@
 
   .cell:hover {
     transform: scale(0.94);
-    background: #f2f2f2;
+    background: var(--hover-fill);
   }
 
   .cell.player {
-    background: #111;
+    background: var(--fg);
   }
 
   .cell.ai {
-    background: #777;
+    background: var(--ai-piece);
   }
 
   .cell.win {
     box-shadow:
-      inset 0 0 0 4px #fff,
-      0 0 0 2px #111;
+      inset 0 0 0 4px var(--bg),
+      0 0 0 2px var(--fg);
   }
 
   .status {
     min-height: 22px;
     margin-bottom: 16px;
-    color: #555;
+    color: var(--status-text);
     font-size: 14px;
   }
 
   .start {
     padding: 11px 26px;
-    border: 2px solid #111;
+    border: 2px solid var(--fg);
     border-radius: 8px;
-    background: #111;
-    color: #fff;
+    background: var(--fg);
+    color: var(--bg);
     font-size: 15px;
     cursor: pointer;
   }
 
   .start:hover {
-    background: #333;
+    background: var(--fg-hover);
   }
 
   .hint {
     margin-top: 16px;
-    color: #999;
+    color: var(--muted-2);
     font-size: 12px;
   }
 </style>
